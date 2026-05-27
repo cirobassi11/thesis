@@ -946,7 +946,7 @@ Questa distinzione, assente nei modelli classici, viene modellata dal parametro 
 \section{La BRDF di Cook-Torrance}
 \label{sec:cook-torrance}
 
-Per descrivere come una superficie riflette la luce si utilizza una funzione chiamata \textit{BRDF} (\textit{Bidirectional Reflectance Distribution Function}). Essa definisce, data una direzione di illuminazione L e una direzione di osservazione V, la frazione di luce incidente che viene riflessa dalla superficie verso l’osservatore.
+Per descrivere come una superficie riflette la luce si utilizza una funzione chiamata \textit{BRDF} (\textit{Bidirectional Reflectance Distribution Function}). Essa definisce, data una direzione di illuminazione $\mathbf{L}$ e una direzione di osservazione $\mathbf{V}$, la frazione di luce incidente che viene riflessa dalla superficie verso l’osservatore.
 
 La BRDF non fornisce il colore finale di un punto: descrive solo il rapporto tra luce ricevuta e luce riflessa. Per ottenere l'illuminazione effettiva va moltiplicata per l'intensità della luce incidente $L_i$ e per il coseno dell'angolo di incidenza $\mathbf{N} \cdot \mathbf{L}$, sommando il contributo di tutte le sorgenti presenti nella scena:
 
@@ -1063,7 +1063,7 @@ dove $\mathbf{N}$ è la normale alla superficie, $\mathbf{H}$ è l'halfway vecto
 \subsection{Termine F (Fresnel)}
 \label{subsec:fresnel}
 
-Il termine $F$ descrive l'effetto Fresnel: la quantità di luce riflessa da una superficie varia in funzione dell'angolo compreso tra la direzione di osservazione $\mathbf{V}$ e la normale $\mathbf{N}$. In particolare, la riflettanza aumenta quanto più la superficie viene osservata di taglio, cioè quando l’angolo tra la direzione di vista V e la normale N diventa più ampio. Questo fenomeno è facilmente osservabile in natura: guardando uno specchio d’acqua dall’alto è spesso possibile vedere il fondo, mentre osservandolo in lontananza prevale il riflesso del paesaggio circostante.
+Il termine $F$ descrive l'effetto Fresnel: la proporzione di luce riflessa da una superficie, detta riflettanza, varia in funzione dell'angolo tra la direzione di osservazione $\mathbf{V}$ e la normale $\mathbf{N}$. In particolare, la riflettanza aumenta quanto più la superficie viene osservata di taglio. Questo fenomeno è facilmente osservabile in natura: guardando uno specchio d'acqua dall'alto è spesso possibile vedere il fondo, mentre osservandolo in lontananza prevale il riflesso del paesaggio circostante.
 
 \begin{figure}[H]
     \centering
@@ -1136,7 +1136,7 @@ Il termine diffuso della BRDF (equazione \ref{eq:brdf-decomposizione}) diventa q
     \label{fig:fresnel-sphere}
 \end{figure}
 
-\subsection{Termine G (Geometry function)}
+\subsection{Termine G (Geometry Function)}
 \label{subsec:geometry}
 
 Il termine $G$ modella il fenomeno di \textit{auto-ombreggiatura} delle microfacce: su una superficie rugosa, alcune microfacce possono oscurare la luce in arrivo su quelle vicine (\textit{shadowing}), mentre altre possono bloccare la luce riflessa prima che raggiunga l'osservatore (\textit{masking}). Entrambi gli effetti riducono la quantità di luce effettivamente visibile e risultano tanto più rilevanti quanto più la superficie è rugosa.
