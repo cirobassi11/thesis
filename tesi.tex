@@ -1864,7 +1864,175 @@ Gli shader descritti in questo capitolo, insieme ai modelli di illuminazione cla
 %  CAPITOLO 5 — PROGETTO DIMOSTRATIVO IN UNITY
 % ============================================================
 \chapter{Progetto Dimostrativo in Unity} \label{chap:progetto}
-% TODO: breve intro al capitolo.
+
+Per verificare nella pratica le differenze tra i modelli di illuminazione analizzati e permettere un confronto diretto e interattivo, è stato realizzato un progetto dimostrativo in Unity.
+L'applicazione consente di esplorare una scena in prima persona, selezionare i singoli oggetti e modificarne in tempo reale lo shader e i relativi parametri, osservando l'effetto delle
+modifiche.
+
+\section{Struttura della scena}
+\label{sec:scena}
+
+La scena contiene diversi oggetti disposti in un ambiente esplorabile, ciascuno con un proprio insieme di materiali predefiniti. Sono presenti sia primitive geometriche (sfere, cubi, cilindri) sia modelli più complessi importati in formato FBX, in modo da mostrare il comportamento degli shader su geometrie di diversa natura — superfici curve, spigoli netti e mesh organiche.
+
+L'illuminazione è affidata a una singola luce direzionale, i cui parametri (intensità, direzione e colore) possono essere regolati a runtime. La scena è completata da uno skybox.
+
+% TODO: inserire screenshot panoramico della scena
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/unity/scena.jpg}
+    \caption{Panoramica della scena dimostrativa con i diversi oggetti.}
+    \label{fig:scena}
+\end{figure}
+
+\section{Navigazione in prima persona}
+\label{sec:navigazione}
+
+La navigazione nella scena avviene in prima persona: il movimento è controllato dai tasti WASD e l'orientamento della visuale dal movimento del mouse. Il controllo è implementato nello script \texttt{FirstPersonCamera}, applicato alla camera. La rotazione verticale (\textit{pitch}) viene applicata alla camera e limitata a $\pm 90°$ per evitare ribaltamenti, mentre la rotazione orizzontale (\textit{yaw}) viene applicata all'oggetto genitore che la contiene.
+
+Il movimento utilizza un componente \texttt{CharacterController}, che gestisce automaticamente le collisioni con la geometria della scena, impedendo alla camera di attraversare gli oggetti.
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Logica di movimento e rotazione della camera.},
+    label={lst:camera}]
+// Rotazione visuale con il mouse
+float mouseX = Input.GetAxis("Mouse X") * lookSpeed;
+float mouseY = Input.GetAxis("Mouse Y") * lookSpeed;
+rotX = Mathf.Clamp(rotX - mouseY, -90f, 90f);
+transform.localRotation = Quaternion.Euler(rotX, 0f, 0f);
+transform.parent.Rotate(Vector3.up * mouseX);
+
+// Movimento con WASD
+float h = Input.GetAxis("Horizontal");
+float v = Input.GetAxis("Vertical");
+Vector3 move = transform.parent.right * h + transform.parent.forward * v;
+controller.Move(move * moveSpeed * Time.deltaTime);
+\end{lstlisting}
+\end{minipage}
+
+\section{Selezione degli oggetti}
+\label{sec:selezione}
+
+Ogni oggetto modificabile è dotato dello script \texttt{SelectableObject}, che ne definisce il nome e l'insieme di materiali disponibili. All'avvio, lo script crea una copia (\textit{instance}) di ciascun materiale, in modo che le modifiche apportate a runtime siano indipendenti per ogni oggetto e non alterino i materiali originali del progetto. Il primo materiale dell'elenco viene applicato come predefinito.
+
+Poiché i modelli importati possono essere composti da più mesh annidate, lo script raccoglie tutti i \texttt{Renderer} presenti nell'oggetto e nei suoi figli, applicando il materiale a ciascuno di essi.
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Creazione delle istanze dei materiali e applicazione.},
+    label={lst:selectable}]
+void Awake() {
+    renderers = GetComponentsInChildren<Renderer>();
+    instances = new Material[materials.Length];
+    for (int i = 0; i < materials.Length; i++)
+        instances[i] = new Material(materials[i]);
+    if (instances.Length > 0)
+        ApplyMaterial(instances[0]);
+}
+
+public void ApplyMaterial(Material mat) {
+    foreach (var r in renderers)
+        r.material = mat;
+}
+\end{lstlisting}
+\end{minipage}
+
+La selezione avviene tramite \textit{raycasting}: al click del mouse viene lanciato un raggio dal centro dello schermo, e il primo oggetto colpito dotato di \texttt{SelectableObject} viene selezionato. Un mirino al centro dello schermo indica il punto di mira.
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Selezione di un oggetto tramite raycast.},
+    label={lst:raycast}]
+Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
+RaycastHit hit;
+if (Physics.Raycast(ray, out hit, selectDistance)) {
+    var obj = hit.collider.GetComponentInParent<SelectableObject>();
+    if (obj != null) {
+        selected = obj;
+        // apertura del pannello...
+    }
+}
+\end{lstlisting}
+\end{minipage}
+
+\section{Pannello di controllo}
+\label{sec:pannello}
+
+Una volta selezionato un oggetto, si apre un pannello che permette di modificarne shader e parametri. Il pannello è realizzato con il sistema \textit{IMGUI} di Unity (\texttt{OnGUI}), scelto per la sua semplicità: non richiede la costruzione di un'interfaccia nell'editor e permette di generare dinamicamente i controlli in base allo shader selezionato.
+
+Il pannello mostra in sequenza:
+
+\begin{itemize}
+    \item il nome dell'oggetto selezionato;
+    \item l'elenco degli shader disponibili per quell'oggetto, selezionabili;
+    \item i parametri del materiale corrente, generati dinamicamente: per ogni proprietà dello shader (roughness, metallic, shininess, colore, \dots) viene mostrato il controllo corrispondente solo se presente;
+    \item i parametri della luce direzionale (intensità, rotazione, colore).
+\end{itemize}
+
+La generazione dinamica dei controlli si basa sul metodo \texttt{HasProperty}, che verifica la presenza di una proprietà nello shader prima di mostrare il relativo slider:
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Generazione dinamica dei controlli in base allo shader.},
+    label={lst:panel}]
+if (mat.HasProperty("_Roughness"))
+    mat.SetFloat("_Roughness", Slider("Roughness", mat.GetFloat("_Roughness"), 0.05f, 1));
+
+if (mat.HasProperty("_Metallic"))
+    mat.SetFloat("_Metallic", Slider("Metallic", mat.GetFloat("_Metallic"), 0, 1));
+\end{lstlisting}
+\end{minipage}
+
+In questo modo lo stesso pannello si adatta automaticamente a qualsiasi shader: un materiale Blinn-Phong mostrerà i controlli per ambient, diffuse, specular e shininess, mentre un materiale PBR mostrerà metallic e roughness, senza bisogno di codice specifico per ciascun caso.
+
+% TODO: inserire screenshot del pannello aperto su un oggetto
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{img/unity/pannello.jpg}
+    \caption{Il pannello di controllo aperto su un oggetto
+             selezionato.}
+    \label{fig:pannello}
+\end{figure}
+
+\section{Confronto visivo tra i modelli}
+\label{sec:confronto-finale}
+
+Il progetto permette di applicare a ciascun oggetto tutti i modelli implementati nei capitoli precedenti, confrontandoli direttamente nella stessa scena e sotto la stessa illuminazione. Le immagini seguenti mostrano lo stesso oggetto con i diversi shader.
+
+% TODO: inserire screenshot dello stesso oggetto con shader diversi
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/unity/obj-blinnphong.jpg}
+        \caption{Blinn-Phong}
+        \label{fig:obj-blinn}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/unity/obj-pbr.jpg}
+        \caption{PBR}
+        \label{fig:obj-pbr}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/unity/obj-toon.jpg}
+        \caption{Toon}
+        \label{fig:obj-toon}
+    \end{subfigure}
+    \caption{Lo stesso oggetto con tre shader diversi, nella stessa scena e con la stessa illuminazione.}
+    \label{fig:obj-confronto}
+\end{figure}
+
+% TODO: eventuale screenshot della scena con oggetti diversi che usano shader diversi contemporaneamente
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/unity/scena-mista.jpg}
+    \caption{La scena con oggetti che utilizzano shader diversi contemporaneamente.}
+    \label{fig:scena-mista}
+\end{figure}
 
 
 % ============================================================
