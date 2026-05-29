@@ -1866,13 +1866,12 @@ Gli shader descritti in questo capitolo, insieme ai modelli di illuminazione cla
 \chapter{Progetto Dimostrativo in Unity} \label{chap:progetto}
 
 Per verificare nella pratica le differenze tra i modelli di illuminazione analizzati e permettere un confronto diretto e interattivo, è stato realizzato un progetto dimostrativo in Unity.
-L'applicazione consente di esplorare una scena in prima persona, selezionare i singoli oggetti e modificarne in tempo reale lo shader e i relativi parametri, osservando l'effetto delle
-modifiche.
+L'applicazione consente di esplorare una scena in prima persona, selezionare i singoli oggetti e modificarne in tempo reale lo shader e i relativi parametri, osservando l'effetto delle modifiche.
 
 \section{Struttura della scena}
 \label{sec:scena}
 
-La scena contiene diversi oggetti disposti in un ambiente esplorabile, ciascuno con un proprio insieme di materiali predefiniti. Sono presenti sia primitive geometriche (sfere, cubi, cilindri) sia modelli più complessi importati in formato FBX, in modo da mostrare il comportamento degli shader su geometrie di diversa natura — superfici curve, spigoli netti e mesh organiche.
+La scena contiene diversi oggetti importati in formato FBX, disposti in un ambiente esplorabile e configurati con materiali predefiniti, scelti per mostrare il comportamento degli shader su geometrie di diversa natura.
 
 L'illuminazione è affidata a una singola luce direzionale, i cui parametri (intensità, direzione e colore) possono essere regolati a runtime. La scena è completata da uno skybox.
 
@@ -1913,9 +1912,9 @@ controller.Move(move * moveSpeed * Time.deltaTime);
 \section{Selezione degli oggetti}
 \label{sec:selezione}
 
-Ogni oggetto modificabile è dotato dello script \texttt{SelectableObject}, che ne definisce il nome e l'insieme di materiali disponibili. All'avvio, lo script crea una copia (\textit{instance}) di ciascun materiale, in modo che le modifiche apportate a runtime siano indipendenti per ogni oggetto e non alterino i materiali originali del progetto. Il primo materiale dell'elenco viene applicato come predefinito.
+Ogni oggetto modificabile è dotato dello script \texttt{SelectableObject}, che ne definisce il nome e l'insieme di materiali disponibili. All'avvio, lo script crea una copia di ciascun materiale, in modo che le modifiche apportate a runtime siano indipendenti per ogni oggetto e non alterino i materiali originali. Il primo materiale dell'elenco viene applicato come predefinito.
 
-Poiché i modelli importati possono essere composti da più mesh annidate, lo script raccoglie tutti i \texttt{Renderer} presenti nell'oggetto e nei suoi figli, applicando il materiale a ciascuno di essi.
+Poiché i modelli importati possono essere composti da più mesh annidate, lo script raccoglie tutti i \texttt{Renderer} presenti nell'oggetto e nei suoi figli (il componente Unity responsabile del disegno di una mesh a schermo) applicando il materiale a ciascuno di essi.
 
 \begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
@@ -1943,7 +1942,8 @@ La selezione avviene tramite \textit{raycasting}: al click del mouse viene lanci
 \begin{lstlisting}[style=hlsl,
     caption={Selezione di un oggetto tramite raycast.},
     label={lst:raycast}]
-Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
+Ray ray =
+    Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
 RaycastHit hit;
 if (Physics.Raycast(ray, out hit, selectDistance)) {
     var obj = hit.collider.GetComponentInParent<SelectableObject>();
@@ -1958,7 +1958,7 @@ if (Physics.Raycast(ray, out hit, selectDistance)) {
 \section{Pannello di controllo}
 \label{sec:pannello}
 
-Una volta selezionato un oggetto, si apre un pannello che permette di modificarne shader e parametri. Il pannello è realizzato con il sistema \textit{IMGUI} di Unity (\texttt{OnGUI}), scelto per la sua semplicità: non richiede la costruzione di un'interfaccia nell'editor e permette di generare dinamicamente i controlli in base allo shader selezionato.
+Una volta selezionato un oggetto, si apre un pannello che permette di modificarne shader e parametri. Il pannello è realizzato con il sistema \textit{IMGUI} di Unity, scelto per la sua semplicità: non richiede la costruzione di un'interfaccia nell'editor e permette di generare dinamicamente i controlli in base allo shader selezionato.
 
 Il pannello mostra in sequenza:
 
@@ -2044,12 +2044,12 @@ Questo elaborato ha presentato i principali modelli di illuminazione utilizzati 
 
 \section{Riepilogo dei risultati}
 
-Sono stati implementati e confrontati diversi modelli di illuminazione: Phong, Blinn-Phong e Cook-Torrance, ciascuno realizzato come shader custom per la Universal Render Pipeline. Il confronto ha evidenziato come il passaggio dai modelli classici al PBR non sia una semplice evoluzione incrementale, ma un cambio
-di approccio: i modelli classici approssimano l'aspetto della luce con formule empiriche i cui parametri vengono regolati manualmente, mentre il PBR si fonda su principi fisici che garantiscono per costruzione la coerenza visiva dei materiali.
+Sono stati implementati e confrontati diversi modelli di illuminazione: Phong, Blinn-Phong e Cook-Torrance, ciascuno realizzato come shader personalizzato per la Universal Render Pipeline. Il confronto ha evidenziato come il passaggio dai modelli classici al PBR rappresenti un cambio di approccio: i modelli classici approssimano l'aspetto della luce con formule empiriche i cui parametri 
+vengono regolati manualmente, mentre il PBR si fonda su principi fisici che garantiscono per costruzione la coerenza visiva dei materiali.
 
 Le differenze più significative emerse dal confronto sono l'effetto Fresnel, che modifica la riflettanza in base all'angolo di osservazione, la conservazione dell'energia, che impedisce configurazioni fisicamente impossibili, e la distinzione tra metalli e dielettrici, assente nei modelli classici.
 
-Sono stati inoltre realizzati due shader personalizzati (toon shading ed effetto ologramma) che dimostrano come la pipeline programmabile non sia limitata al fotorealismo ma permetta di implementare qualsiasi modello di illuminazione o effetto visivo.
+Sono stati inoltre realizzati due shader personalizzati (effetto toon e ologramma) che dimostrano come la pipeline programmabile non sia limitata al fotorealismo ma permetta di implementare qualsiasi modello di illuminazione o effetto visivo.
 
 Il progetto dimostrativo in Unity ha permesso di confrontare tutti i modelli in tempo reale sulla stessa scena, verificando nella pratica le differenze teoriche analizzate nei capitoli precedenti.
 
@@ -2057,20 +2057,20 @@ Il progetto dimostrativo in Unity ha permesso di confrontare tutti i modelli in 
 
 L'implementazione presentata si concentra sulla luce diretta proveniente da una singola sorgente direzionale. Il contributo della luce indiretta, normalmente gestito tramite Image-Based Lighting, è stato approssimato con un termine ambientale costante. Questa semplificazione, pur essendo sufficiente a dimostrare il funzionamento del modello, limita la resa visiva dei materiali, in particolare dei metalli, che senza riflessi ambientali appaiono più scuri di quanto sarebbero in un ambiente reale.
 
-Gli shader non gestiscono inoltre ombre proiettate, luci multiple o trasparenze complesse (ad eccezione dell'effetto ologramma), funzionalità che in un contesto produttivo sarebbero necessarie.
+Gli shader non gestiscono inoltre ombre proiettate o luci multiple, funzionalità che normalmente sarebbero necessarie.
 
 \section{Possibili sviluppi futuri}
 
 Il lavoro presentato potrebbe essere esteso in diverse direzioni:
 
 \begin{itemize}
-    \item \textbf{Image-Based Lighting}: l'implementazione completa dell'IBL, con irradiance map e cubemap filtrate per la componente speculare, migliorerebbe significativamente la resa dei materiali, in particolare dei metalli.
+    \item \textbf{Luci multiple e ombre}: il supporto a più sorgenti luminose e alle ombre proiettate renderebbe gli shader utilizzabili in scene più complesse e realistiche.
+    
+    \item \textbf{Image-Based Lighting}: un'implementazione completa dell'IBL migliorerebbe significativamente la resa dei materiali, in particolare dei metalli.
 
     \item \textbf{Ray tracing}: le GPU moderne supportano il ray tracing in tempo reale, che permette di calcolare riflessioni, rifrazioni e illuminazione globale in modo fisicamente accurato, superando le approssimazioni del rendering rasterizzato.
 
-    \item \textbf{Luci multiple e ombre}: il supporto a più sorgenti luminose e alle ombre proiettate renderebbe gli shader utilizzabili in scene più complesse e realistiche.
-
-    \item \textbf{Modelli avanzati}: BRDF più sofisticate, come quelle che tengono conto dell'anisotropia del materiale o della trasmissione della luce attraverso superfici sottili (\textit{subsurface scattering}), permetterebbero di rappresentare una gamma più ampia di materiali.
+    \item \textbf{Modelli avanzati}: BRDF più sofisticate permetterebbero di rappresentare una gamma più ampia di materiali.
 \end{itemize}
 
 
