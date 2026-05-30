@@ -1875,10 +1875,9 @@ La scena contiene diversi oggetti importati in formato FBX, disposti in un ambie
 
 L'illuminazione è affidata a una singola luce direzionale, i cui parametri (intensità, direzione e colore) possono essere regolati a runtime. La scena è completata da uno skybox.
 
-% TODO: inserire screenshot panoramico della scena
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{img/unity/scena.jpg}
+    \includegraphics[width=0.95\textwidth]{img/project/scene.jpg}
     \caption{Panoramica della scena dimostrativa con i diversi oggetti.}
     \label{fig:scena}
 \end{figure}
@@ -1985,12 +1984,10 @@ if (mat.HasProperty("_Metallic"))
 
 In questo modo lo stesso pannello si adatta automaticamente a qualsiasi shader: un materiale Blinn-Phong mostrerà i controlli per ambient, diffuse, specular e shininess, mentre un materiale PBR mostrerà metallic e roughness, senza bisogno di codice specifico per ciascun caso.
 
-% TODO: inserire screenshot del pannello aperto su un oggetto
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.4\textwidth]{img/unity/pannello.jpg}
-    \caption{Il pannello di controllo aperto su un oggetto
-             selezionato.}
+    \includegraphics[width=0.5\textwidth]{img/project/shader_panel.jpeg}
+    \caption{Il pannello di controllo aperto su un oggetto selezionato.}
     \label{fig:pannello}
 \end{figure}
 
@@ -1999,30 +1996,53 @@ In questo modo lo stesso pannello si adatta automaticamente a qualsiasi shader: 
 
 Il progetto permette di applicare a ciascun oggetto tutti i modelli implementati nei capitoli precedenti, confrontandoli direttamente nella stessa scena e sotto la stessa illuminazione. Le immagini seguenti mostrano lo stesso oggetto con i diversi shader.
 
-% TODO: inserire screenshot dello stesso oggetto con shader diversi
 \begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.32\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{img/unity/obj-blinnphong.jpg}
+        \includegraphics[width=\textwidth]{img/project/phong.jpg}
+        \caption{Phong}
+        \label{fig:obj-phong}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/project/blinn-phong.jpg}
         \caption{Blinn-Phong}
         \label{fig:obj-blinn}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{img/unity/obj-pbr.jpg}
+        \includegraphics[width=\textwidth]{img/project/pbr.jpg}
         \caption{PBR}
         \label{fig:obj-pbr}
+    \end{subfigure}
+
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/project/pbr_textured.jpg}
+        \caption{PBR con texture}
+        \label{fig:obj-pbr-tex}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.32\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{img/unity/obj-toon.jpg}
+        \includegraphics[width=\textwidth]{img/project/toon.jpg}
         \caption{Toon}
         \label{fig:obj-toon}
     \end{subfigure}
-    \caption{Lo stesso oggetto con tre shader diversi, nella stessa scena e con la stessa illuminazione.}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/project/hologram.jpg}
+        \caption{Hologram}
+        \label{fig:obj-hologram}
+    \end{subfigure}
+
+    \caption{Lo stesso oggetto con i sei shader implementati, nella stessa scena e con la stessa illuminazione.}
     \label{fig:obj-confronto}
 \end{figure}
 
