@@ -328,7 +328,7 @@ Shader "Custom/NomeShader" {
                 float3 positionWS : TEXCOORD1;
             };
 
-            float4 _Color;
+            float4 _Color; // rende la property accessibile al codice HLSL
 
             Varyings vert(Attributes IN) { // Vertex shader
                 Varyings OUT;
@@ -353,6 +353,13 @@ Le strutture \texttt{Attributes} e \texttt{Varyings} definiscono rispettivamente
 
 Questa struttura è la base su cui verranno costruiti tutti gli shader nei capitoli successivi.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/inspector.jpeg}
+    \caption{L'inspector di un materiale in Unity: i parametri mostrati corrispondono alle proprietà dichiarate nel blocco \texttt{Properties} dello shader.}
+    \label{fig:inspector}
+\end{figure}
+
 
 % ============================================================
 %  CAPITOLO 2 — MODELLI DI ILLUMINAZIONE E SHADING CLASSICI
@@ -376,8 +383,7 @@ Per comprendere i modelli di illuminazione è necessario introdurne i concetti f
 Quando un raggio di luce colpisce una superficie opaca, la sua energia viene in parte assorbita e in parte riflessa. La componente riflessa può essere descritta come la somma di tre contributi distinti:
 
 \begin{itemize}
-    \item \textbf{Componente ambientale}: rappresenta la luce indiretta, ovvero quella che ha rimbalzato più volte nell'ambiente circostante prima di raggiungere la superficie. Nei modelli classici viene approssimata con un termine costante: una stima grossolana, ma evita che le zone in ombra appaiano 
-completamente nere.
+    \item \textbf{Componente ambientale}: rappresenta la luce indiretta, ovvero quella che ha rimbalzato più volte nell'ambiente circostante prima di raggiungere la superficie. Nei modelli classici viene approssimata con un termine costante: una stima grossolana, ma evita che le zone in ombra appaiano completamente nere.
 
     \item \textbf{Componente diffusa}: rappresenta la luce riemessa dalla superficie uniformemente in tutte le direzioni. La sua intensità non dipende dalla posizione dell'osservatore, bensì dall'angolo tra la direzione della luce incidente e la normale alla superficie.
 
