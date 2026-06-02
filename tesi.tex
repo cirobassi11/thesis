@@ -14,7 +14,7 @@
 \usepackage{listings}
 \lstdefinestyle{hlsl}{
     language=C,
-    basicstyle=\ttfamily\scriptsize,     % font più piccolo
+    basicstyle=\ttfamily\scriptsize,
     keywordstyle=\bfseries\color[RGB]{0,10,240},
     morekeywords={float2, float3, float4, float3x3, half, half3, half4,
               Varyings, Attributes, Light, Shader, SubShader, Pass,
@@ -22,19 +22,19 @@
               TEXTURE2D, SAMPLER, SAMPLE_TEXTURE2D, Vector3, foreach, Material, Ray, RaycastHit, var},
     commentstyle=\itshape\color[RGB]{106,153,85},
     stringstyle=\color[RGB]{206,145,120},
-    breaklines=true,                      % va a capo automaticamente
+    breaklines=true,
     breakatwhitespace=true,
     tabsize=4,
     showstringspaces=false,
-    numbers=left,                         % numeri di riga a sinistra
+    numbers=left,
     numberstyle=\tiny\color{gray},
     numbersep=8pt,
-    frame=single,                         % cornice attorno al codice
+    frame=single,
     framesep=4pt,
-    aboveskip=8pt,                        % meno spazio sopra e sotto
+    aboveskip=8pt,
     belowskip=8pt,
-    xleftmargin=16pt,                     % margine per i numeri di riga
-    columns=flexible                      % spaziatura più naturale
+    xleftmargin=16pt,
+    columns=flexible
 }
 
 \usepackage{hyperref}
@@ -199,7 +199,7 @@ La tesi è così strutturata:
 % ============================================================
 %  CAPITOLO 1 — LA PIPELINE DI RENDERING
 % ============================================================
-\chapter{La Pipeline di Rendering} \label{chap:pipeline}
+\chapter{La pipeline di rendering} \label{chap:pipeline}
 
 La computer graphics ha come obiettivo principale la generazione di immagini a partire da una descrizione matematica di una scena tridimensionale. Tale descrizione, costituita da geometrie, materiali, luci e parametri della camera, viene trasformata progressivamente in un’immagine bidimensionale destinata alla visualizzazione su schermo. L’insieme delle fasi che realizzano questa trasformazione prende il nome di \textit{pipeline di rendering}. Nelle architetture moderne, gran parte di tale processo è implementata direttamente in hardware dalle GPU (\textit{Graphics Processing Unit}), che eseguono in modo altamente parallelo le operazioni necessarie alla produzione dei pixel finali.
 
@@ -227,7 +227,7 @@ La pipeline grafica moderna, ottimizzata nella quasi totalità dei casi per l'el
 
 Di seguito vengono descritti i principali stadi della pipeline. Tra questi, il vertex shader e il fragment shader rappresentano le principali fasi programmabili: è infatti al loro interno che è possibile definire il comportamento della geometria e calcolare il colore finale dei frammenti.
 
-\subsection{Vertex Shader}
+\subsection{Vertex shader}
 \label{subsec:vertex-shader}
 
 Il \textit{vertex shader} è il primo stadio programmabile della pipeline. Viene eseguito una volta per ogni vertice della geometria inviata alla GPU e ha come compito principale quello di trasformarne le coordinate attraverso una serie di spazi di riferimento, fino a ottenere la posizione finale utilizzata nelle fasi successive della pipeline:
@@ -266,12 +266,12 @@ La rasterizzazione è lo stadio, non programmabile, che converte le primitive ge
 
 Per ogni frammento generato, la rasterizzazione interpola linearmente gli attributi calcolati dal vertex shader nei vertici del triangolo corrispondente.
 
-\subsection{Fragment Shader}
+\subsection{Fragment shader}
 \label{subsec:fragment-shader}
 
 Il \textit{fragment shader} è il secondo dei principali stadi programmabili della pipeline. Esso viene eseguito una volta per ciascun frammento generato dalla rasterizzazione e ha il compito di determinarne il colore finale. Per svolgere questa operazione, il fragment shader riceve in ingresso gli attributi interpolati durante la fase di rasterizzazione, come la normale, la posizione nello spazio e le coordinate texture. Tali informazioni vengono utilizzate per valutare il modello di illuminazione scelto e calcolare il contributo della luce sulla superficie. I modelli di illuminazione vengono solitamente implementati in questo stadio, anziché nel vertex shader, poiché il calcolo dell'illuminazione per-pixel produce risultati significativamente più accurati rispetto al calcolo per-vertice, soprattutto in presenza di riflessi speculari o variazioni locali della superficie.
 
-\subsection{Output Merger}
+\subsection{Output merger}
 \label{subsec:output-merger}
 
 L'\textit{output merger} è l'ultimo stadio della pipeline, non programmabile. Riceve i frammenti prodotti dal fragment shader e decide quali vengono effettivamente scritti nel framebuffer (il buffer che contiene l'immagine finale destinata allo schermo). Questa decisione avviene attraverso una serie di operazioni, tra cui il \textit{depth test}, che scarta i frammenti nascosti da geometrie più vicine alla camera, e il \textit{blending}, che combina il colore del frammento con quello già presente nel framebuffer. Quest’ultima operazione è particolarmente importante nella gestione della trasparenza.
@@ -292,7 +292,7 @@ Le due pipeline attualmente fornite da Unity sono la \textit{Universal Render Pi
 
 Nel progetto sviluppato in questa tesi è stata adottata URP: poiché l’obiettivo principale consiste nell’implementazione manuale dei modelli di illuminazione, era necessario utilizzare una pipeline che offrisse un controllo diretto sul codice di rendering, riducendo al minimo la complessità aggiuntiva. In questo modo è stato possibile concentrare l’attenzione sulla logica di illuminazione e sul confronto tra i modelli implementati. La scelta della pipeline non influenza i fondamenti teorici trattati: i modelli, le tecniche di shading e la struttura della pipeline grafica rimangono concettualmente identici indipendentemente dalla pipeline adottata.
 
-\section{Il linguaggio HLSL e ShaderLab in Unity}
+\section{Il linguaggio HLSL e ShaderLab}
 \label{sec:hlsl}
 
 Gli shader in Unity vengono scritti in file con estensione \texttt{.shader} che utilizzano ShaderLab, un linguaggio proprietario che descrive la struttura generale dello shader, le sue proprietà e i pass di rendering. All’interno di questa struttura viene inserito il codice HLSL, responsabile dell’implementazione della logica del vertex shader e del fragment shader
@@ -364,7 +364,7 @@ Questa struttura è la base su cui verranno costruiti tutti gli shader nei capit
 % ============================================================
 %  CAPITOLO 2 — MODELLI DI ILLUMINAZIONE E SHADING CLASSICI
 % ============================================================
-\chapter{Modelli Classici di Illuminazione e Tecniche di Shading} \label{chap:classici}
+\chapter{Modelli classici di illuminazione e tecniche di shading} \label{chap:classici}
 
 Questo capitolo presenta i modelli di illuminazione storicamente più rilevanti nella grafica in tempo reale: il modello di Phong e la sua variante proposta da Blinn. Si tratta di modelli empirici, pur non essendo fondati su una descrizione fisicamente accurata dell’interazione tra luce e materia, approssimano in modo efficace il comportamento visivo della luce, mantenendo un costo computazionale contenuto.
 
@@ -887,7 +887,7 @@ float4 frag(Varyings IN) : SV_Target {
 % ============================================================
 %  CAPITOLO 3 — PHYSICALLY BASED RENDERING (PBR)
 % ============================================================
-\chapter{Physically Based Rendering} \label{chap:pbr}
+\chapter{Physically Based Rendering (PBR)} \label{chap:pbr}
 
 I modelli di Phong e Blinn-Phong, presentati nel capitolo precedente, sono modelli empirici: producono risultati visivamente plausibili, ma non si basano su principi fisici e i loro parametri vengono regolati manualmente, senza vincoli che ne garantiscano la correttezza. Il risultato è che, al variare delle condizioni di illuminazione, gli stessi materiali possono apparire convincenti in una scena e innaturali in un'altra.
 
@@ -999,16 +999,16 @@ Il termine speculare $f_{\text{specular}}$ costituisce il nucleo del modello ed 
 dove $D$, $F$ e $G$ modellano ciascuno un particolare fenomeno fisico:
 
 \begin{itemize}
-    \item $D$ (\textit{Normal Distribution Function}): descrive la distribuzione statistica degli orientamenti delle microfacce.
+    \item $D$ (\textit{normal distribution function}): descrive la distribuzione statistica degli orientamenti delle microfacce.
     \item $F$ (\textit{Fresnel}): descrive la proporzione di luce riflessa rispetto a quella rifratta in funzione dell'angolo di incidenza.
-    \item $G$ (\textit{Geometry Function}): modella l'auto-ombreggiatura tra le microfacce.
+    \item $G$ (\textit{geometry function}): modella l'auto-ombreggiatura tra le microfacce.
 \end{itemize}
 
 Il denominatore $4 \, (\mathbf{N} \cdot \mathbf{V}) \, (\mathbf{N} \cdot \mathbf{L})$ è un fattore di normalizzazione derivato dal modello a microfacce.
 
 Le sottosezioni successive descrivono nel dettaglio ciascuno dei tre termini.
 
-\subsection{Termine D (Normal Distribution Function)}
+\subsection{Termine D (normal distribution function)}
 \label{subsec:ggx}
 
 Il termine $D$ è una funzione che descrive la distribuzione statistica degli orientamenti delle microfacce. Data una direzione $\mathbf{H}$ (halfway vector), $D$ descrive la concentrazione di microfacce orientate in quella direzione, ovvero quelle che riflettono effettivamente la luce verso l'osservatore.
@@ -1142,7 +1142,7 @@ Il termine diffuso della BRDF (equazione \ref{eq:brdf-decomposizione}) diventa q
     \label{fig:fresnel-sphere}
 \end{figure}
 
-\subsection{Termine G (Geometry Function)}
+\subsection{Termine G (geometry function)}
 \label{subsec:geometry}
 
 Il termine $G$ modella il fenomeno di \textit{auto-ombreggiatura} delle microfacce: su una superficie rugosa, alcune microfacce possono oscurare la luce in arrivo su quelle vicine (\textit{shadowing}), mentre altre possono bloccare la luce riflessa prima che raggiunga l'osservatore (\textit{masking}). Entrambi gli effetti riducono la quantità di luce effettivamente visibile e risultano tanto più rilevanti quanto più la superficie è rugosa.
@@ -1213,14 +1213,14 @@ L'effetto visivo di $G$ è quello di attenuare le zone illuminate ad angoli rade
     \label{fig:geometry-confronto}
 \end{figure}
 
-\section{Workflow Metallic/Roughness}
+\section{Metallic/Roughness workflow}
 \label{sec:workflow}
 
-I modelli PBR sono descritti in termini di grandezze fisiche: riflettanza base $F_0$, rugosità delle microfacce, distinzione tra metalli e dielettrici. Per rendere questi parametri utilizzabili in pratica, i motori di rendering moderni adottano il \textit{workflow metallic/roughness}, che riduce la configurazione di un materiale a pochi parametri intuitivi.
+I modelli PBR sono descritti in termini di grandezze fisiche: riflettanza base $F_0$, rugosità delle microfacce, distinzione tra metalli e dielettrici. Per rendere questi parametri utilizzabili in pratica, i motori di rendering moderni adottano il \textit{metallic/roughness workflow}, che riduce la configurazione di un materiale a pochi parametri intuitivi.
 
 \subsection{Parametri di un materiale}
 \label{subsec:parametri-materiale}
-Un materiale PBR nel workflow metallic/roughness è descritto da tre parametri principali:
+Un materiale PBR nel metallic/roughness workflow è descritto da tre parametri principali:
 \begin{itemize}
     \item \textbf{Albedo}: il colore base del materiale. Per i dielettrici rappresenta il colore della componente diffusa; per i metalli, dove la componente diffusa è assente, viene utilizzato come valore di $F_0$, determinando il colore del riflesso speculare.
     \item \textbf{Metallic}: un valore compreso tra 0 e 1 che indica se il materiale è un dielettrico (0) o un metallo (1), controllando il valore di $F_0$ e la presenza della componente diffusa. Per un dielettrico si assume $F_0 = 0.04$ e la componente diffusa è presente; per un metallo $F_0$ coincide con l'albedo e la componente diffusa è assente. Questa distinzione viene realizzata tramite un'interpolazione:
@@ -1587,11 +1587,11 @@ La normale $\mathbf{N}$ risultante sostituisce quella interpolata dal vertex sha
 % ============================================================
 %  CAPITOLO 4 — SHADER PERSONALIZZATI
 % ============================================================
-\chapter{Shader Personalizzati per Effetti Non Fotorealistici} \label{chap:custom}
+\chapter{Shader personalizzati per effetti non fotorealistici} \label{chap:custom}
 
 Dopo aver analizzato modelli di illuminazione orientati alla resa realistica, questo capitolo mostra come la stessa pipeline programmabile possa essere utilizzata anche per ottenere effetti stilizzati e non fotorealistici. Gli shader presentati non hanno l’obiettivo di simulare fedelmente il comportamento fisico della luce, ma di evidenziare la flessibilità offerta da vertex e fragment shader nella definizione di modelli di resa personalizzati.
 
-\section{Toon Shading}
+\section{Toon shading}
 \label{sec:toon}
 
 Il \textit{toon shading} è una tecnica di rendering non fotorealistico che imita l'aspetto dei disegni animati e dei fumetti. Anziché produrre sfumature continue come i modelli classici, riduce l'illuminazione a poche fasce di colore con transizioni brusche tra zone illuminate e zone in ombra. Il modello di illuminazione alla base resta quello di Blinn-Phong, con la differenza che i valori calcolati vengono quantizzati in fasce discrete anziché applicati direttamente.
@@ -1869,10 +1869,9 @@ Gli shader descritti in questo capitolo, insieme ai modelli di illuminazione cla
 % ============================================================
 %  CAPITOLO 5 — PROGETTO DIMOSTRATIVO IN UNITY
 % ============================================================
-\chapter{Progetto Dimostrativo in Unity} \label{chap:progetto}
+\chapter{Progetto dimostrativo in Unity} \label{chap:progetto}
 
-Per verificare nella pratica le differenze tra i modelli di illuminazione analizzati e permettere un confronto diretto e interattivo, è stato realizzato un progetto dimostrativo in Unity.
-L'applicazione consente di esplorare una scena in prima persona, selezionare i singoli oggetti e modificarne in tempo reale lo shader e i relativi parametri, osservando l'effetto delle modifiche.
+Per verificare nella pratica le differenze tra i modelli di illuminazione analizzati e permettere un confronto diretto e interattivo, è stato realizzato un progetto dimostrativo in Unity. L'applicazione consente di esplorare una scena in prima persona, selezionare i singoli oggetti e modificarne in tempo reale lo shader e i relativi parametri, osservando l'effetto delle modifiche.
 
 \section{Struttura della scena}
 \label{sec:scena}
@@ -1968,7 +1967,7 @@ if (Physics.Raycast(ray, out hit, selectDistance)) {
 \end{lstlisting}
 \end{minipage}
 
-\section{Pannello di controllo}
+\section{Pannello selezione dello shader}
 \label{sec:pannello}
 
 Una volta selezionato un oggetto, si apre un pannello che permette di modificarne shader e parametri dei materiali. Il pannello è realizzato con il sistema \textit{IMGUI} di Unity, scelto per la sua semplicità: non richiede la costruzione di un'interfaccia nell'editor e permette di generare dinamicamente i controlli in base allo shader selezionato.
@@ -2005,7 +2004,7 @@ In questo modo lo stesso pannello si adatta automaticamente a qualsiasi shader: 
     \label{fig:pannello}
 \end{figure}
 
-\section{Confronto visivo tra i modelli}
+\section{Confronto visivo tra i modelli di illuminazione}
 \label{sec:confronto-finale}
 
 Il progetto permette di applicare a ciascun oggetto tutti i modelli implementati nei capitoli precedenti, confrontandoli direttamente nella stessa scena e sotto la stessa illuminazione. Le immagini seguenti mostrano lo stesso oggetto con i diversi shader.
@@ -2076,34 +2075,24 @@ Il progetto è stato infine esportato come applicazione eseguibile tramite il si
 Questo elaborato ha presentato i principali modelli di illuminazione utilizzati nella grafica in tempo reale, dai modelli empirici classici fino al Physically Based Rendering, accompagnando la trattazione teorica con implementazioni concrete in HLSL all'interno del motore Unity.
 
 \section{Riepilogo dei risultati}
-
-Sono stati implementati e confrontati diversi modelli di illuminazione: Phong, Blinn-Phong e Cook-Torrance, ciascuno realizzato come shader personalizzato per la Universal Render Pipeline. Il confronto ha evidenziato come il passaggio dai modelli classici al PBR rappresenti un cambio di approccio: i modelli classici approssimano l'aspetto della luce con formule empiriche i cui parametri 
-vengono regolati manualmente, mentre il PBR si fonda su principi fisici che garantiscono per costruzione la coerenza visiva dei materiali.
+Sono stati implementati e confrontati diversi modelli di illuminazione --- Phong, Blinn-Phong e Cook-Torrance --- ciascuno realizzato come shader personalizzato per la Universal Render Pipeline di Unity. Il confronto ha evidenziato come il passaggio dai modelli classici al PBR rappresenti un cambio di approccio: i modelli classici approssimano l'aspetto della luce con formule empiriche i cui parametri vengono regolati manualmente, mentre il PBR si fonda su principi fisici che garantiscono per costruzione la coerenza visiva dei materiali.
 
 Le differenze più significative emerse dal confronto sono l'effetto Fresnel, che modifica la riflettanza in base all'angolo di osservazione, la conservazione dell'energia, che impedisce configurazioni fisicamente impossibili, e la distinzione tra metalli e dielettrici, assente nei modelli classici.
 
-Sono stati inoltre realizzati due shader personalizzati (effetto toon e ologramma) che dimostrano come la pipeline programmabile non sia limitata al fotorealismo ma permetta di implementare qualsiasi modello di illuminazione o effetto visivo.
+Sono stati inoltre realizzati due shader personalizzati --- effetto toon e ologramma --- che dimostrano come la pipeline programmabile non sia limitata al fotorealismo, ma permetta di implementare qualsiasi modello di illuminazione o effetto visivo.
 
-Il progetto dimostrativo in Unity ha permesso di confrontare tutti i modelli in tempo reale sulla stessa scena, verificando nella pratica le differenze teoriche analizzate nei capitoli precedenti.
+Il progetto in Unity ha permesso di confrontare tutti i modelli in tempo reale sulla stessa scena, verificando nella pratica le differenze teoriche analizzate nei capitoli precedenti.
 
 \section{Limiti del lavoro}
-
-L'implementazione presentata si concentra sulla luce diretta proveniente da una singola sorgente direzionale. Il contributo della luce indiretta, normalmente gestito tramite Image-Based Lighting, è stato approssimato con un termine ambientale costante. Questa semplificazione, pur essendo sufficiente a dimostrare il funzionamento del modello, limita la resa visiva dei materiali, in particolare dei metalli, che senza riflessi ambientali appaiono più scuri di quanto sarebbero in un ambiente reale.
-
-Gli shader non gestiscono inoltre ombre proiettate o luci multiple, funzionalità che normalmente sarebbero necessarie.
+L'implementazione presentata si concentra sulla luce diretta proveniente da una singola sorgente direzionale. Il contributo della luce indiretta, normalmente gestito tramite Image-Based Lighting, è stato approssimato con un termine ambientale costante. Questa semplificazione, pur sufficiente a dimostrare il funzionamento del modello, limita la resa visiva dei materiali, in particolare dei metalli, che senza riflessi ambientali appaiono più scuri di quanto sarebbero in un ambiente reale. Gli shader non gestiscono inoltre ombre proiettate o luci multiple.
 
 \section{Possibili sviluppi futuri}
-
 Il lavoro presentato potrebbe essere esteso in diverse direzioni:
-
 \begin{itemize}
     \item \textbf{Luci multiple e ombre}: il supporto a più sorgenti luminose e alle ombre proiettate renderebbe gli shader utilizzabili in scene più complesse e realistiche.
-    
     \item \textbf{Image-Based Lighting}: un'implementazione completa dell'IBL migliorerebbe significativamente la resa dei materiali, in particolare dei metalli.
-
-    \item \textbf{Ray tracing}: le GPU moderne supportano il ray tracing in tempo reale, che permette di calcolare riflessioni, rifrazioni e illuminazione globale in modo fisicamente accurato, superando le approssimazioni del rendering rasterizzato.
-
     \item \textbf{Modelli avanzati}: BRDF più sofisticate permetterebbero di rappresentare una gamma più ampia di materiali.
+    \item \textbf{Ray tracing}: le GPU moderne supportano il ray tracing in tempo reale, che permette di calcolare riflessioni, rifrazioni e illuminazione globale in modo fisicamente accurato, superando le approssimazioni del rendering rasterizzato.
 \end{itemize}
 
 
