@@ -248,10 +248,7 @@ La trasformazione complessiva di un vertice $\mathbf{v}$ dalla posizione in obje
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/spaces.png}
-    \caption{La sequenza di trasformazioni delle coordinate: dallo spazio locale 
-    dell'oggetto (\textit{object space}), allo spazio del mondo (\textit{world 
-    space}), allo spazio della camera (\textit{view space}), fino allo spazio 
-    di proiezione (\textit{clip space}).}
+    \caption[La sequenza di trasformazioni delle coordinate]{La sequenza di trasformazioni delle coordinate: dallo spazio locale dell'oggetto (\textit{object space}), allo spazio del mondo (\textit{world space}), allo spazio della camera (\textit{view space}), fino allo spazio di proiezione (\textit{clip space}).}
     \label{fig:coordinate-spaces}
 \end{figure}
 
@@ -279,7 +276,7 @@ L'\textit{output merger} è l'ultimo stadio della pipeline, non programmabile. R
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{img/render-pipeline.png}
-    \caption{Schema dei principali stadi della pipeline di rendering.}
+    \caption[I principali stadi della pipeline di rendering]{I principali stadi della pipeline di rendering.}
     \label{fig:pipeline}
 \end{figure}
 
@@ -356,7 +353,7 @@ Questa struttura è la base su cui verranno costruiti tutti gli shader nei capit
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{img/inspector.jpeg}
-    \caption{L'inspector di un materiale in Unity: i parametri mostrati corrispondono alle proprietà dichiarate nel blocco \texttt{Properties} dello shader.}
+    \caption[L'Inspector di Unity]{L'inspector di un materiale in Unity: i parametri mostrati corrispondono alle proprietà dichiarate nel blocco \texttt{Properties} dello shader.}
     \label{fig:inspector}
 \end{figure}
 
@@ -428,7 +425,7 @@ dove $I_a$, $I_d$ e $I_s$ rappresentano rispettivamente le componenti ambientale
         \caption{Risultato finale}
         \label{fig:combined}
     \end{subfigure}
-    \caption{Le tre componenti della luce riflessa su una sfera e la loro somma.}
+    \caption[Le componenti della luce riflessa]{Le tre componenti della luce riflessa su una sfera e la loro somma.}
     \label{fig:componenti}
 \end{figure}
 
@@ -460,7 +457,7 @@ Per comprenderne la formulazione matematica è necessario definire i principali 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{img/classicModels/phong-vectors.png}
-    \caption{Vettori coinvolti nel modello di Phong. Immagine adattata da ~\cite{wiki_blinnphong}.}
+    \caption[Vettori coinvolti nel modello di Phong]{Vettori coinvolti nel modello di Phong. Immagine adattata da ~\cite{wiki_blinnphong}.}
     \label{fig:phong-vectors}
 \end{figure}
 
@@ -544,7 +541,7 @@ Si osserva che una superficie riflette la luce in modo speculare verso l'osserva
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{img/classicModels/blinn-phong-vectors.png}
-    \caption{Vettori coinvolti nel modello di Blinn-Phong. Immagine adattata da ~\cite{wiki_blinnphong}.}
+    \caption[Vettori coinvolti nel modello di Blinn-Phong]{Vettori coinvolti nel modello di Blinn-Phong. Immagine adattata da ~\cite{wiki_blinnphong}.}
     \label{fig:blinn-vectors}
 \end{figure}
 
@@ -722,7 +719,7 @@ float4 frag(Varyings IN) : SV_Target {
         \caption{Phong shading}
         \label{fig:phong-shading}
     \end{subfigure}
-    \caption{Confronto tra le tre tecniche di shading applicate a una sfera a bassa risoluzione.}
+    \caption[Confronto tra le tre tecniche di shading]{Confronto tra le tre tecniche di shading applicate a una sfera a bassa risoluzione.}
     \label{fig:shading-confronto}
 \end{figure}
 
@@ -860,7 +857,7 @@ float4 frag(Varyings IN) : SV_Target {
         \caption{Modello di Blinn-Phong}
         \label{fig:blinnphong-model}
     \end{subfigure}
-    \caption{Confronto tra i modelli di Phong e Blinn-Phong con parametri identici.}
+    \caption[Confronto tra i modelli di Phong e Blinn-Phong]{Confronto tra i modelli di Phong e Blinn-Phong con parametri identici.}
     \label{fig:phong-vs-blinn}
 \end{figure}
 
@@ -879,7 +876,7 @@ float4 frag(Varyings IN) : SV_Target {
         \caption{Modello di Blinn-Phong}
         \label{fig:blinn-cutoff}
     \end{subfigure}
-    \caption{Riflesso speculare su un piano con luce radente e un valore di shininess basso. Nel modello di Phong il riflesso presenta un taglio netto, assente in Blinn-Phong.}
+    \caption[Confronto tra i riflessi speculari con luce radente]{Riflesso speculare su un piano con luce radente e un valore di shininess basso. Nel modello di Phong il riflesso presenta un taglio netto, assente in Blinn-Phong.}
     \label{fig:cutoff-confronto}
 \end{figure}
 
@@ -928,7 +925,7 @@ L'aspetto del materiale dipende dalla distribuzione degli orientamenti delle mic
         \caption{Superficie rugosa: microfacce non allineate}
         \label{fig:microfacets-rough}
     \end{subfigure}
-    \caption{Rappresentazione delle microfacce. Immagini tratte da ~\cite{learnopengl_pbr}.}
+    \caption[Rappresentazione delle microfacce.]{Rappresentazione delle microfacce. Immagini tratte da ~\cite{learnopengl_pbr}.}
     \label{fig:microfacets}
 \end{figure}
 
@@ -1062,7 +1059,7 @@ dove $\mathbf{N}$ è la normale alla superficie, $\mathbf{H}$ è l'halfway vecto
         \caption{1.0}
         \label{fig:roughness-08}
     \end{subfigure}
-    \caption{Visualizzazione del termine $D$ al variare della rugosità. All'aumentare di $\alpha$ la distribuzione delle microfacce diventa più dispersa, producendo un riflesso più ampio e meno intenso.}
+    \caption[Visualizzazione del termine $D$]{Visualizzazione del termine $D$ al variare della rugosità. All'aumentare di $\alpha$ la distribuzione delle microfacce diventa più dispersa, producendo un riflesso più ampio e meno intenso.}
     \label{fig:roughness-confronto}
 \end{figure}
 
@@ -1074,7 +1071,7 @@ Il termine $F$ descrive l'effetto Fresnel: la proporzione di luce riflessa da un
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{img/pbr/fresnel-lake.jpg}
-    \caption{Effetto Fresnel su un lago: in primo piano l'acqua appare trasparente, mentre in lontananza riflette il paesaggio.}
+    \caption[Effetto Fresnel su un lago]{Effetto Fresnel su un lago: in primo piano l'acqua appare trasparente, mentre in lontananza riflette il paesaggio.}
     \label{fig:fresnel-lake}
 \end{figure}
 
@@ -1138,7 +1135,7 @@ Il termine diffuso della BRDF (equazione \ref{eq:brdf-decomposizione}) diventa q
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{img/pbr/F/F.png}
-    \caption{Visualizzazione del termine $F$ su una sfera: la riflettanza aumenta alle zone periferiche, dove l'angolo tra $\mathbf{V}$ e $\mathbf{N}$ è maggiore.}
+    \caption[Visualizzazione del termine $F$]{Visualizzazione del termine $F$ su una sfera: la riflettanza aumenta alle zone periferiche, dove l'angolo tra $\mathbf{V}$ e $\mathbf{N}$ è maggiore.}
     \label{fig:fresnel-sphere}
 \end{figure}
 
@@ -1154,7 +1151,7 @@ Il termine $G$ modella il fenomeno di \textit{auto-ombreggiatura} delle microfac
         \includegraphics[width=0.45\textwidth]{img/pbr/geometry/shadowing.jpg} \\[4pt]
         (a) masking & (b) shadowing
     \end{tabular}
-    \caption{Nel masking (a) la microfaccia, pur orientata correttamente, non è visibile all'osservatore perché coperta da una microfaccia adiacente; nello shadowing (b) la luce non raggiunge la microfaccia perché bloccata da una vicina. Immagini tratte da \cite{pharr2023}.}
+    \caption[Effetti di masking e shadowing]{Nel masking (a) la microfaccia, pur orientata correttamente, non è visibile all'osservatore perché coperta da una microfaccia adiacente; nello shadowing (b) la luce non raggiunge la microfaccia perché bloccata da una vicina. Immagini tratte da \cite{pharr2023}.}
     \label{fig:masking-shadowing}
 \end{figure}
 
@@ -1209,7 +1206,7 @@ L'effetto visivo di $G$ è quello di attenuare le zone illuminate ad angoli rade
         \caption{1.0}
         \label{fig:geometry-08}
     \end{subfigure}
-    \caption{Visualizzazione del termine $G$ al variare della rugosità. All'aumentare della rugosità, l'auto-ombreggiatura delle microfacce attenua maggiormente le zone illuminate a basso angolo di incidenza.}
+    \caption[Visualizzazione del termine $G$]{Visualizzazione del termine $G$ al variare della rugosità. All'aumentare della rugosità, l'auto-ombreggiatura delle microfacce attenua maggiormente le zone illuminate a basso angolo di incidenza.}
     \label{fig:geometry-confronto}
 \end{figure}
 
@@ -1248,7 +1245,6 @@ Le texture fungono quindi da semplice contenitore per i dati: il modello matemat
 
 \begin{figure}[H]
     \centering
-    % Riga texture
     \begin{tabular}{cccc}
         \includegraphics[width=0.22\textwidth]{img/pbr/textures/albedo.jpg} &
         \includegraphics[width=0.22\textwidth]{img/pbr/textures/metallic.jpg} &
@@ -1259,11 +1255,10 @@ Le texture fungono quindi da semplice contenitore per i dati: il modello matemat
 
     \vspace{8pt}
 
-    % Risultato finale
     \includegraphics[width=0.5\textwidth]{img/pbr/textures/result.png}\\[4pt]
     Risultato finale
 
-    \caption{Le texture map e il risultato della loro combinazione nel modello di Cook-Torrance.}
+    \caption[Le texture map]{Le texture map e il risultato della loro combinazione nel modello di Cook-Torrance.}
     \label{fig:texture-workflow}
 \end{figure}
 
@@ -1275,7 +1270,7 @@ I modelli di illuminazione presentati finora considerano esclusivamente il contr
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{img/pbr/indirect-lighting.jpeg}
-    \caption{Confronto tra luce diretta e luce indiretta: la luce diretta raggiunge la superficie direttamente dalla sorgente, mentre la luce indiretta è il risultato dei rimbalzi successivi sulle superfici circostanti.}
+    \caption[Confronto tra luce diretta e indiretta]{Confronto tra luce diretta e luce indiretta: la luce diretta raggiunge la superficie direttamente dalla sorgente, mentre la luce indiretta è il risultato dei rimbalzi successivi sulle superfici circostanti.}
     \label{fig:indirect-lighting}
 \end{figure}
 
@@ -1292,14 +1287,14 @@ L'implementazione completa dell'IBL esula dagli obiettivi di questa tesi: negli 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{img/pbr/cubemap.png}
-    \caption{Una \textit{cubemap} in formato a croce: le sei facce del cubo vengono "srotolate" in un'unica immagine e rappresentano l'ambiente circostante a 360°.}
+    \caption[Cubemap]{Una \textit{cubemap} in formato a croce: le sei facce del cubo vengono "srotolate" in un'unica immagine e rappresentano l'ambiente circostante a 360°.}
     \label{fig:cubemap}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{img/pbr/ibl.jpg}
-    \caption{Sfere con rugosità crescente illuminate tramite IBL: al diminuire della rugosità i riflessi dell'ambiente diventano progressivamente più nitidi.}
+    \caption[Sfere con rugosità crescente illuminate tramite IBL]{Sfere con rugosità crescente illuminate tramite IBL: al diminuire della rugosità i riflessi dell'ambiente diventano progressivamente più nitidi.}
     \label{fig:ibl-example}
 \end{figure}
 
@@ -1441,7 +1436,7 @@ Le immagini seguenti mettono a confronto il modello di Blinn-Phong e il modello 
         \caption{Cook-Torrance}
         \label{fig:confronto-pbr}
     \end{subfigure}
-    \caption{Confronto tra i modelli di Blinn-Phong e di Cook-Torrance nelle stesse condizioni di illuminazione.}
+    \caption[Confronto tra i modelli di Blinn-Phong e di Cook-Torrance]{Confronto tra i modelli di Blinn-Phong e di Cook-Torrance nelle stesse condizioni di illuminazione.}
     \label{fig:confronto-pbr-blinn}
 \end{figure}
 
@@ -1481,7 +1476,7 @@ Le immagini seguenti mettono a confronto il modello di Blinn-Phong e il modello 
         \caption{M=1}
         \label{fig:metal-1}
     \end{subfigure}
-    \caption{Effetto del parametro metallic (roughness = 0.3). Al crescere di metallic la componente diffusa scompare e il riflesso speculare assume il colore dell'albedo.}
+    \caption[Effetto del parametro metallic]{Effetto del parametro metallic (roughness = 0.3). Al crescere di metallic la componente diffusa scompare e il riflesso speculare assume il colore dell'albedo.}
     \label{fig:metallic-confronto}
 \end{figure}
 
@@ -1500,7 +1495,7 @@ Le immagini seguenti mettono a confronto il modello di Blinn-Phong e il modello 
         \caption{Cook-Torrance}
         \label{fig:confronto-pbr-oro}
     \end{subfigure}
-    \caption{Confronto su un materiale metallico (oro). In Blinn-Phong il riflesso speculare è bianco, in Cook-Torrance assume il colore dell'albedo.}
+    \caption[Confronto su un materiale metallico]{Confronto su un materiale metallico (oro). In Blinn-Phong il riflesso speculare è bianco, in Cook-Torrance assume il colore dell'albedo.}
     \label{fig:confronto-oro}
 \end{figure}
 
@@ -1519,7 +1514,7 @@ Le immagini seguenti mettono a confronto il modello di Blinn-Phong e il modello 
         \caption{Cook-Torrance}
         \label{fig:confronto-pbr-rough}
     \end{subfigure}
-    \caption{Confronto con rugosità elevata. In Cook-Torrance i bordi risultano più scuri per effetto del termine G (auto-ombreggiatura delle microfacce), assente in Blinn-Phong.}
+    \caption[Confronto con rugosità elevata]{Confronto con rugosità elevata. In Cook-Torrance i bordi risultano più scuri per effetto del termine G (auto-ombreggiatura delle microfacce), assente in Blinn-Phong.}
     \label{fig:confronto-rough}
 \end{figure}
 
@@ -1579,7 +1574,7 @@ La normale $\mathbf{N}$ risultante sostituisce quella interpolata dal vertex sha
         \caption{Con texture maps}
         \label{fig:pbr-tex}
     \end{subfigure}
-    \caption{Il modello di Cook-Torrance con valori costanti e con texture maps. Le texture permettono di variare i parametri del materiale punto per punto.}
+    \caption[Confronto tra valori costanti e texture maps]{Il modello di Cook-Torrance con valori costanti e con texture maps. Le texture permettono di variare i parametri del materiale punto per punto.}
     \label{fig:pbr-texture-confronto}
 \end{figure}
 
@@ -1706,7 +1701,7 @@ float4 frag(Varyings IN) : SV_Target {
         \caption{Risultato finale}
         \label{fig:toon-result}
     \end{subfigure}
-    \caption{I due pass del toon shader e il risultato della loro combinazione.}
+    \caption[I due pass del toon shading]{I due pass del toon shading e il risultato della loro combinazione.}
     \label{fig:toon-pass}
 \end{figure}
 
@@ -1732,7 +1727,7 @@ float4 frag(Varyings IN) : SV_Target {
         \caption{8 fasce}
         \label{fig:toon-8}
     \end{subfigure}
-    \caption{Effetto del numero di fasce nel toon shading. Con poche fasce l'aspetto è più stilizzato, con più fasce la transizione è più graduale.}
+    \caption[Effetto del numero di fasce nel toon shading]{Effetto del numero di fasce nel toon shading. Con poche fasce l'aspetto è più stilizzato, con più fasce la transizione è più graduale.}
     \label{fig:toon-steps}
 \end{figure}
 
@@ -1751,7 +1746,7 @@ float4 frag(Varyings IN) : SV_Target {
         \caption{Toon}
         \label{fig:toon-vs-toon}
     \end{subfigure}
-    \caption{Confronto tra Blinn-Phong e toon shading sullo stesso oggetto.}
+    \caption[Confronto tra Blinn-Phong e toon shading]{Confronto tra Blinn-Phong e toon shading sullo stesso oggetto.}
     \label{fig:toon-confronto}
 \end{figure}
 
@@ -1859,7 +1854,7 @@ L'opacità è data dalla somma del rim lighting e del pattern a strisce, modulat
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{img/hologram/hologram.png}
-    \caption{Effetto ologramma applicato a un oggetto. I bordi appaiono più luminosi e opachi, le bande orizzontali scorrono verticalmente e un leggero tremolio simula l'instabilità della proiezione.}
+    \caption[Effetto ologramma applicato a un oggetto]{Effetto ologramma applicato a un oggetto. I bordi appaiono più luminosi e opachi, le bande orizzontali scorrono verticalmente e un leggero tremolio simula l'instabilità della proiezione.}
     \label{fig:hologram}
 \end{figure}
 
@@ -1883,7 +1878,7 @@ L'illuminazione è affidata a una singola luce direzionale, i cui parametri (int
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{img/project/scene.jpg}
-    \caption{Panoramica della scena dimostrativa.}
+    \caption[Panoramica della scena dimostrativa]{Panoramica della scena dimostrativa.}
     \label{fig:scena}
 \end{figure}
 
@@ -2000,7 +1995,7 @@ In questo modo lo stesso pannello si adatta automaticamente a qualsiasi shader: 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{img/project/shader_panel.jpeg}
-    \caption{Il pannello di controllo aperto su un oggetto selezionato.}
+    \caption[Il pannello di selezione dello shader]{Il pannello di selezione dello shader aperto su un oggetto selezionato.}
     \label{fig:pannello}
 \end{figure}
 
@@ -2057,7 +2052,7 @@ Il progetto permette di applicare a ciascun oggetto tutti i modelli implementati
         \label{fig:obj-hologram}
     \end{subfigure}
 
-    \caption{Lo stesso oggetto con i sei shader implementati, nella stessa scena e con la stessa illuminazione.}
+    \caption[Lo stesso oggetto con i sei shader implementati]{Lo stesso oggetto con i sei shader implementati, nella stessa scena e con la stessa illuminazione.}
     \label{fig:obj-confronto}
 \end{figure}
 
