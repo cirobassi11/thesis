@@ -609,7 +609,7 @@ Le tre tecniche di shading si distinguono per il punto in cui viene valutato il 
 \subsection{Flat shading}
 \label{subsec:impl-flatshading}
 
-Nel flat shading ogni frammento di un triangolo riceve lo stesso colore, senza interpolazione. In HLSL questo si ottiene calcolando l'illuminazione nel vertex shader e annotando il risultato con il modificatore \texttt{nointerpolation}, che impedisce alla GPU di interpolare il valore tra i vertici:
+Le tre tecniche di shading si distinguono per il punto in cui viene valutato il modello di illuminazione e per i dati scambiati tra vertex e fragment shader. Il modello di illuminazione rimane comunque indipendente dalla tecnica scelta.
 
 \begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
