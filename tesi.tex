@@ -365,7 +365,7 @@ Questa struttura è la base su cui verranno costruiti tutti gli shader nei capit
 
 Questo capitolo presenta i modelli di illuminazione storicamente più rilevanti nella grafica in tempo reale: il modello di Phong e la sua variante proposta da Blinn. Si tratta di modelli empirici, pur non essendo fondati su una descrizione fisicamente accurata dell’interazione tra luce e materia, approssimano in modo efficace il comportamento visivo della luce, mantenendo un costo computazionale contenuto.
 
-Entrambi sono modelli di \textbf{illuminazione locale}: calcolano il colore di un punto considerando solo la luce che arriva direttamente dalle sorgenti, senza tener conto dei rimbalzi successivi tra le superfici. Al contrario, i modelli di \textbf{illuminazione globale} simulano anche la luce indiretta producendo risultati molto più realistici, ma a un costo computazionale spesso incompatibile con il rendering in tempo reale e non verranno trattati in questa tesi. Il PBR, trattato nel \Cref{chap:pbr}, può avvicinarsi all'illuminazione globale tramite l'Image-Based Lighting, pur restando nell'ambito dei modelli locali.
+Entrambi sono modelli di illuminazione locale: calcolano il colore di un punto considerando solo la luce che arriva direttamente dalle sorgenti, senza tener conto dei rimbalzi successivi tra le superfici. Al contrario, i modelli di illuminazione globale simulano anche la luce indiretta producendo risultati molto più realistici, ma a un costo computazionale spesso incompatibile con il rendering in tempo reale e non verranno trattati in questa tesi. Il PBR, trattato nel \Cref{chap:pbr}, può avvicinarsi all'illuminazione globale tramite l'Image-Based Lighting, pur restando nell'ambito dei modelli locali.
 
 Dopo aver introdotto i concetti di base sull'interazione tra luce e superficie, vengono formalizzati i due modelli e analizzate le differenze tra le principali tecniche di shading: flat, Gouraud e Phong shading. Il capitolo si conclude con le implementazioni HLSL dei modelli di illuminazione in Unity.
 
@@ -615,6 +615,11 @@ Nel flat shading ogni frammento di un triangolo riceve lo stesso colore, senza i
 \begin{lstlisting}[style=hlsl,
     caption={Implementazione del flat shading.},
     label={lst:flat-impl}]
+struct Attributes {
+    float4 positionOS : POSITION;
+    float3 normalOS   : NORMAL;
+};
+
 struct Varyings {
     float4 positionCS : SV_POSITION;
     nointerpolation float3 color : TEXCOORD0; // colore non interpolato
@@ -644,6 +649,11 @@ Nel Gouraud shading il calcolo dell'illuminazione avviene sempre nel vertex shad
 \begin{lstlisting}[style=hlsl,
     caption={Implementazione del Gouraud shading.},
     label={lst:gouraud-impl}]
+struct Attributes {
+    float4 positionOS : POSITION;
+    float3 normalOS   : NORMAL;
+};
+    
 struct Varyings {
     float4 positionCS : SV_POSITION;
     float3 color      : TEXCOORD0;  // colore interpolato
@@ -676,6 +686,11 @@ rasterizzazione. Il fragment shader utilizza la normale interpolata per valutare
 \begin{lstlisting}[style=hlsl,
     caption={Implementazione del Phong shading.},
     label={lst:phong-shading-impl}]
+struct Attributes {
+    float4 positionOS : POSITION;
+    float3 normalOS   : NORMAL;
+};
+
 struct Varyings {
     float4 positionCS : SV_POSITION;
     float3 normalWS   : TEXCOORD0; // normale interpolata
@@ -1151,7 +1166,7 @@ Il termine $G$ modella il fenomeno di \textit{auto-ombreggiatura} delle microfac
         \includegraphics[width=0.45\textwidth]{img/pbr/geometry/shadowing.jpg} \\[4pt]
         (a) masking & (b) shadowing
     \end{tabular}
-    \caption[Effetti di masking e shadowing]{Nel masking (a) la microfaccia, pur orientata correttamente, non è visibile all'osservatore perché coperta da una microfaccia adiacente; nello shadowing (b) la luce non raggiunge la microfaccia perché bloccata da una vicina. Immagini tratte da \cite{pharr2023}.}
+    \caption[Effetti di masking e shadowing]{Nel masking (a) la microfaccia, pur orientata correttamente, non è visibile all'osservatore perché coperta da una microfaccia adiacente; nello shadowing (b) la luce non raggiunge la microfaccia perché bloccata da una vicina.}
     \label{fig:masking-shadowing}
 \end{figure}
 
@@ -1445,35 +1460,35 @@ Le immagini seguenti mettono a confronto il modello di Blinn-Phong e il modello 
     \begin{subfigure}[b]{0.19\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/metallic/m0.png}
-        \caption{M=0}
+        \caption{0}
         \label{fig:metal-0}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.19\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/metallic/m0.25.png}
-        \caption{M=0.25}
+        \caption{0.25}
         \label{fig:metal-025}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.19\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/metallic/m0.5.png}
-        \caption{M=0.5}
+        \caption{0.5}
         \label{fig:metal-05}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.19\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/metallic/m0.75.png}
-        \caption{M=0.75}
+        \caption{0.75}
         \label{fig:metal-075}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.19\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/metallic/m1.png}
-        \caption{M=1}
+        \caption{1}
         \label{fig:metal-1}
     \end{subfigure}
     \caption[Effetto del parametro metallic]{Effetto del parametro metallic (roughness = 0.3). Al crescere di metallic la componente diffusa scompare e il riflesso speculare assume il colore dell'albedo.}
@@ -2076,7 +2091,7 @@ L'implementazione presentata si concentra sulla luce diretta proveniente da una 
 \section{Possibili sviluppi futuri}
 Il lavoro potrebbe essere esteso in diverse direzioni:
 \begin{itemize}
-    \item \textbf{Luci multiple e ombre}: il supporto a più sorgenti luminose e alle ombre proiettate renderebbe gli shader utilizzabili anche in scene più complesse e realistiche.
+    \item \textbf{Luci multiple e ombre}: il supporto a più sorgenti luminose e alle ombre proiettate renderebbe gli shader utilizzabili in scene più complesse e realistiche.
     \item \textbf{Image-Based Lighting}: un'implementazione completa dell'IBL migliorerebbe significativamente la resa dei materiali, in particolare dei metalli.
     \item \textbf{Modelli avanzati}: BRDF più sofisticate permetterebbero di rappresentare una gamma più ampia di materiali.
     \item \textbf{Ray tracing}: le GPU moderne supportano il ray tracing in tempo reale, che permette di calcolare riflessioni, rifrazioni e illuminazione globale in modo fisicamente accurato, superando le approssimazioni del rendering rasterizzato.
