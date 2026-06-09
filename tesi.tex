@@ -185,13 +185,14 @@ La scelta del modello di illuminazione ha un impatto diretto sulla qualità visi
 L'obiettivo di questo elaborato è comparare i principali modelli di illuminazione utilizzati nella grafica in tempo reale, implementandoli in HLSL all'interno del motore Unity. A tal fine è stata adottata la \textit{Universal Render Pipeline} (URP), una pipeline leggera e versatile che consente di scrivere shader personalizzati con pieno controllo sul calcolo dell'illuminazione, rendendola ideale per implementare e confrontare direttamente i modelli trattati. Il lavoro copre la pipeline di rendering programmabile, i modelli classici di Phong e Blinn-Phong, il Physically Based Rendering con la BRDF di Cook-Torrance, alcuni shader personalizzati a scopo dimostrativo e un progetto in Unity che mette a confronto visivamente i modelli implementati.
 
 La tesi è così strutturata:
-
 \begin{itemize}
     \item il \Cref{chap:pipeline} introduce la pipeline di rendering programmabile nei suoi stadi principali e fornisce le basi di Unity e del linguaggio HLSL;
-    \item il \Cref{chap:classici} tratta i modelli di illuminazione classici: vengono analizzati i modelli di Phong e Blinn-Phong, le diverse tecniche di shading (flat, Gouraud e Phong shading) e le relative implementazioni HLSL;
-    \item il \Cref{chap:pbr} è dedicato al Physically Based Rendering: vengono illustrati i principi fisici alla base del modello, la BRDF di Cook-Torrance con la relativa implementazione HLSL, il workflow metallic/roughness e un'introduzione all'Image-Based Lighting;
-    \item il \Cref{chap:custom} presenta alcuni shader personalizzati che esulano dal fotorealismo, mostrando le possibilità espressive della pipeline programmabile;
-    \item il \Cref{chap:progetto} descrive il progetto dimostrativo realizzato in Unity, analizzando le differenze visive e prestazionali tra i modelli implementati;
+    \item il \Cref{chap:classici} tratta la teoria dei modelli di illuminazione classici, Phong e Blinn-Phong, e delle tecniche di shading (flat, Gouraud e Phong shading);
+    \item il \Cref{chap:pbr} è dedicato alla teoria del Physically Based Rendering: i principi fisici alla base del modello, la BRDF di Cook-Torrance, il workflow metallic/roughness e
+    un'introduzione all'Image-Based Lighting;
+    \item il \Cref{chap:custom} presenta, dal punto di vista concettuale, alcuni shader personalizzati che esulano dal fotorealismo, mostrando le possibilità espressive della pipeline
+    programmabile;
+    \item il \Cref{chap:progetto} costituisce il cuore del lavoro: raccoglie l'implementazione HLSL di tutti gli shader, la loro integrazione nel progetto Unity, le scene di test e il confronto visivo e prestazionale tra i modelli;
     \item il \Cref{chap:conclusioni} raccoglie le considerazioni conclusive.
 \end{itemize}
 
@@ -363,16 +364,16 @@ Questa struttura è la base su cui verranno costruiti tutti gli shader nei capit
 % ============================================================
 \chapter{Modelli classici di illuminazione e tecniche di shading} \label{chap:classici}
 
-Questo capitolo presenta i modelli di illuminazione storicamente più rilevanti nella grafica in tempo reale: il modello di Phong e la sua variante proposta da Blinn. Si tratta di modelli empirici, pur non essendo fondati su una descrizione fisicamente accurata dell’interazione tra luce e materia, approssimano in modo efficace il comportamento visivo della luce, mantenendo un costo computazionale contenuto.
+Questo capitolo presenta i modelli di illuminazione storicamente più rilevanti nella grafica in tempo reale: il modello di Phong e la sua variante proposta da Blinn. Si tratta di modelli empirici, pur non essendo fondati su una descrizione fisicamente accurata dell'interazione tra luce e materia, approssimano in modo efficace il comportamento visivo della luce, mantenendo un costo computazionale contenuto.
 
 Entrambi sono modelli di illuminazione locale: calcolano il colore di un punto considerando solo la luce che arriva direttamente dalle sorgenti, senza tener conto dei rimbalzi successivi tra le superfici. Al contrario, i modelli di illuminazione globale simulano anche la luce indiretta producendo risultati molto più realistici, ma a un costo computazionale spesso incompatibile con il rendering in tempo reale e non verranno trattati in questa tesi. Il PBR, trattato nel \Cref{chap:pbr}, può avvicinarsi all'illuminazione globale tramite l'Image-Based Lighting, pur restando nell'ambito dei modelli locali.
 
-Dopo aver introdotto i concetti di base sull'interazione tra luce e superficie, vengono formalizzati i due modelli e analizzate le differenze tra le principali tecniche di shading: flat, Gouraud e Phong shading. Il capitolo si conclude con le implementazioni HLSL dei modelli di illuminazione in Unity.
+Dopo aver introdotto i concetti di base sull'interazione tra luce e superficie, vengono formalizzati i due modelli e analizzate le differenze tra le principali tecniche di shading: flat, Gouraud e Phong shading. Le relative implementazioni HLSL sono presentate nel \Cref{chap:progetto}, dedicato alla parte pratica del lavoro.
 
 \section{Interazione tra luce e superficie}
 \label{sec:fondamenti}
 
-Per comprendere i modelli di illuminazione è necessario introdurne i concetti fisici alla base dell’interazione tra luce e superficie, analizzando sia il comportamento della luce quando incide su un materiale, sia il modo in cui la risposta della superficie può essere scomposta in componenti più semplici da modellare.
+Per comprendere i modelli di illuminazione è necessario introdurne i concetti fisici alla base dell'interazione tra luce e superficie, analizzando sia il comportamento della luce quando incide su un materiale, sia il modo in cui la risposta della superficie può essere scomposta in componenti più semplici da modellare.
 
 \subsection{Componenti della luce riflessa}
 \label{subsec:componenti-riflessione}
@@ -441,7 +442,7 @@ Il modello di illuminazione di Phong, è un modello di illuminazione locale prop
 
 Il modello si basa sulla decomposizione della luce riflessa nelle tre componenti introdotte nella \Cref{subsec:componenti-riflessione}: ambientale, diffusa e speculare.
 
-Per comprenderne la formulazione matematica è necessario definire i principali vettori unitari coinvolti nel calcolo dell’illuminazione, valutati nel punto della superficie considerato:
+Per comprenderne la formulazione matematica è necessario definire i principali vettori unitari coinvolti nel calcolo dell'illuminazione, valutati nel punto della superficie considerato:
 
 \begin{itemize}
     \item $\mathbf{N}$: normale alla superficie, diretta verso l'esterno;
@@ -503,6 +504,13 @@ La formula finale del modello di Phong è data dalla somma delle tre componenti:
     \label{eq:phong-complete}
 \end{equation}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/classicModels/phong.png}
+    \caption[Modello di Phong]{Una sfera renderizzata con il modello di Phong.}
+    \label{fig:phong-model}
+\end{figure}
+
 \subsection{Limiti del modello}
 
 Nonostante la sua semplicità ed efficacia, il modello di Phong presenta alcuni limiti significativi:
@@ -510,7 +518,7 @@ Nonostante la sua semplicità ed efficacia, il modello di Phong presenta alcuni 
 \begin{itemize}
     \item \textbf{Non conserva l'energia}: nessun vincolo impedisce che la somma dei coefficienti $k_a + k_d + k_s$ superi 1, producendo più luce riflessa di quella incidente.
     \item \textbf{Il modello è empirico}: le tre componenti non derivano da principi fisici ma da un'osservazione qualitativa del comportamento della luce. Il risultato è visivamente plausibile ma non fisicamente corretto.
-    \item \textbf{Riflesso speculare troncato}: quando l'angolo tra $\mathbf{R}$ e $\mathbf{V}$ supera i 90°, il prodotto scalare diventa negativo e viene annullato (poiché limitato a zero). In alcuni casi questo produce un taglio netto del riflesso speculare (\Cref{fig:phong-cutoff}).
+    \item \textbf{Riflesso speculare troncato}: quando l'angolo tra $\mathbf{R}$ e $\mathbf{V}$ supera i 90°, il prodotto scalare diventa negativo e viene annullato (poiché limitato a zero). In alcuni casi questo produce un taglio netto del riflesso speculare (\Cref{fig:cutoff-confronto}).
 \end{itemize}
 
 L'ultimo di questi limiti è uno dei motivi principali dell'introduzione del modello di Blinn-Phong.
@@ -556,15 +564,41 @@ Le componenti ambientale e diffusa rimangono invariate rispetto al modello di Ph
     \label{eq:blinn-complete}
 \end{equation}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/classicModels/blinnphong.png}
+    \caption[Modello di Blinn-Phong]{Una sfera renderizzata con il modello di Blinn-Phong.}
+    \label{fig:blinnphong-model}
+\end{figure}
+
 \subsection{Vantaggi rispetto al modello di Phong}
 
 La sostituzione di $\mathbf{R} \cdot \mathbf{V}$ con $\mathbf{N} \cdot \mathbf{H}$ comporta due vantaggi principali.
 
-Il primo è computazionale: il calcolo di $\mathbf{R}$ richiede una riflessione (equazione \ref{eq:reflect}), mentre $\mathbf{H}$ richiede solo una somma e una normalizzazione. 
+Il primo è computazionale: il calcolo di $\mathbf{R}$ richiede una riflessione (equazione \ref{eq:reflect}), mentre $\mathbf{H}$ richiede solo una somma e una normalizzazione.
 
 Il secondo riguarda la qualità visiva. Il problema del riflesso speculare troncato descritto nella sezione precedente non si presenta con Blinn-Phong: l'angolo tra $\mathbf{N}$ e $\mathbf{H}$ non supera mai i 90° in condizioni normali, eliminando l'artefatto.
 
 Per queste ragioni Blinn-Phong ha sostituito il modello di Phong originale come standard nella grafica in tempo reale.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/cutoff/phong.jpg}
+        \caption{Modello di Phong}
+        \label{fig:phong-cutoff}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/cutoff/blinnphong.jpg}
+        \caption{Modello di Blinn-Phong}
+        \label{fig:blinn-cutoff}
+    \end{subfigure}
+    \caption[Confronto tra i riflessi speculari con luce radente]{Riflesso speculare su un piano con luce radente e un valore di shininess basso. Nel modello di Phong il riflesso presenta un taglio netto, assente in Blinn-Phong.}
+    \label{fig:cutoff-confronto}
+\end{figure}
 
 \subsection{Limiti del modello}
 
@@ -580,15 +614,14 @@ I modelli di illuminazione descritti nelle sezioni precedenti stabiliscono come 
 \subsection{Flat shading}
 \label{subsec:flat}
 
-Nel \textit{flat shading} il modello di illuminazione viene valutato una sola volta per faccia, utilizzando la normale del poligono, e il colore risultante viene assegnato uniformemente all'intera faccia senza alcuna interpolazione. Il risultato è un'immagine in cui i singoli poligoni sono chiaramente distinguibili, il che lo rende inadatto alla 
-rappresentazione di superfici lisce.
+Nel \textit{flat shading} il modello di illuminazione viene valutato una sola volta per faccia, utilizzando la normale del poligono, e il colore risultante viene assegnato uniformemente all'intera faccia senza alcuna interpolazione. Il risultato è un'immagine in cui i singoli poligoni sono chiaramente distinguibili, il che lo rende inadatto alla rappresentazione di superfici lisce.
 
 Dal punto di vista implementativo, il flat shading si ottiene assegnando a ogni vertice di un poligono la stessa normale, pari a quella della faccia, senza condividerla con le facce adiacenti.
 
 \subsection{Gouraud shading}
 \label{subsec:gouraud}
 
-Il \textit{Gouraud shading}, proposto da Henri Gouraud nel 1971~\cite{gouraud1971}, valuta il modello di illuminazione una volta per vertice. Il colore calcolato in ciascun vertice viene poi interpolato sulla superficie del poligono durante la rasterizzazione. Per ottenere transizioni più morbide tra facce adiacenti, la normale associata a ciascun vertice non coincide generalmente con la normale di una singola faccia, ma viene calcolata come media delle normali delle facce che condividono quel vertice. In questo modo si ottiene una variazione più continua dell’illuminazione sulla superficie, riducendo l’aspetto sfaccettato tipico del flat shading.
+Il \textit{Gouraud shading}, proposto da Henri Gouraud nel 1971~\cite{gouraud1971}, valuta il modello di illuminazione una volta per vertice. Il colore calcolato in ciascun vertice viene poi interpolato sulla superficie del poligono durante la rasterizzazione. Per ottenere transizioni più morbide tra facce adiacenti, la normale associata a ciascun vertice non coincide generalmente con la normale di una singola faccia, ma viene calcolata come media delle normali delle facce che condividono quel vertice. In questo modo si ottiene una variazione più continua dell'illuminazione sulla superficie, riducendo l'aspetto sfaccettato tipico del flat shading.
 
 Rispetto al flat shading, il risultato è una superficie con variazioni di colore continue, che elimina le discontinuità tra facce adiacenti. Tuttavia l'interpolazione del colore presenta un limite significativo: i riflessi speculari vengono calcolati solo nelle posizioni dei vertici. Se un riflesso cade al centro di un poligono, lontano dai vertici, il Gouraud shading non è in grado di catturarlo. Il riflesso risulta quindi assente o fortemente distorto.
 
@@ -600,117 +633,6 @@ Il \textit{Phong shading}, proposto nello stesso articolo del modello di illumin
 Questo approccio produce riflessi speculari corretti indipendentemente dalla densità della mesh, poiché il calcolo avviene in ogni pixel e non solo nei vertici. Il costo computazionale è più alto (il modello di illuminazione viene valutato per ogni frammento anziché per ogni vertice) ma sulle GPU moderne è una differenza trascurabile.
 
 Tutti gli shader sviluppati in seguito utilizzeranno il Phong shading, poiché è l'unico che produce risultati accurati in presenza di riflessi speculari.
-
-\section{Implementazione HLSL delle tecniche di shading}
-\label{sec:impl-shading}
-
-Le tre tecniche di shading si distinguono per il punto in cui viene valutato il modello di illuminazione e per i dati scambiati tra \textit{vertex} e \textit{fragment shader}, che rimane comunque indipendente dalla tecnica scelta.
-
-\subsection{Flat shading}
-\label{subsec:impl-flatshading}
-
-Le tre tecniche di shading si distinguono per il punto in cui viene valutato il modello di illuminazione e per i dati scambiati tra vertex e fragment shader. Il modello di illuminazione rimane comunque indipendente dalla tecnica scelta.
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Implementazione del flat shading.},
-    label={lst:flat-impl}]
-struct Attributes {
-    float4 positionOS : POSITION;
-    float3 normalOS   : NORMAL;
-};
-
-struct Varyings {
-    float4 positionCS : SV_POSITION;
-    nointerpolation float3 color : TEXCOORD0; // colore non interpolato
-};
-
-Varyings vert(Attributes IN) {
-    Varyings OUT;
-    OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
-    float3 posWS = TransformObjectToWorld(IN.positionOS.xyz);
-    float3 N = normalize(TransformObjectToWorldNormal(IN.normalOS));
-    OUT.color = ... // calcolo dell'illuminazione
-    return OUT;
-}
-
-float4 frag(Varyings IN) : SV_Target {
-    return float4(IN.color, 1.0);
-}
-\end{lstlisting}
-\end{minipage}
-
-\subsection{Gouraud shading}
-\label{subsec:impl-gouraudshading}
-
-Nel Gouraud shading il calcolo dell'illuminazione avviene sempre nel vertex shader, ma il colore viene interpolato tra i vertici. L'unica differenza rispetto al flat shading è la rimozione di \texttt{nointerpolation}:
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Implementazione del Gouraud shading.},
-    label={lst:gouraud-impl}]
-struct Attributes {
-    float4 positionOS : POSITION;
-    float3 normalOS   : NORMAL;
-};
-    
-struct Varyings {
-    float4 positionCS : SV_POSITION;
-    float3 color      : TEXCOORD0;  // colore interpolato
-};
-
-Varyings vert(Attributes IN) {
-    Varyings OUT;
-    OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
-    float3 posWS = TransformObjectToWorld(IN.positionOS.xyz);
-    float3 N = normalize(TransformObjectToWorldNormal(IN.normalOS));
-    OUT.color = ... // calcolo dell'illuminazione
-    return OUT;
-}
-
-float4 frag(Varyings IN) : SV_Target {
-    return float4(IN.color, 1.0);
-}
-\end{lstlisting}
-\end{minipage}
-
-Il fragment shader è identico a quello del flat shading: restituisce il colore senza ulteriori calcoli. La differenza visiva è interamente dovuta all'interpolazione operata dalla rasterizzazione.
-
-\subsection{Phong shading}
-\label{subsec:impl-phongshading}
-
-Nel Phong shading il calcolo dell'illuminazione viene spostato nel fragment shader. Il vertex shader non calcola più il colore, ma passa la normale e la posizione, che vengono interpolate dalla
-rasterizzazione. Il fragment shader utilizza la normale interpolata per valutare il modello di illuminazione in ogni frammento:
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Implementazione del Phong shading.},
-    label={lst:phong-shading-impl}]
-struct Attributes {
-    float4 positionOS : POSITION;
-    float3 normalOS   : NORMAL;
-};
-
-struct Varyings {
-    float4 positionCS : SV_POSITION;
-    float3 normalWS   : TEXCOORD0; // normale interpolata
-    float3 positionWS : TEXCOORD1;
-};
-
-Varyings vert(Attributes IN) {
-    Varyings OUT;
-    OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
-    OUT.normalWS   = TransformObjectToWorldNormal(IN.normalOS);
-    OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
-    return OUT;
-}
-
-float4 frag(Varyings IN) : SV_Target {
-    float3 N = normalize(IN.normalWS);
-    return ... // calcolo dell'illuminazione
-}
-\end{lstlisting}
-\end{minipage}
 
 \begin{figure}[H]
     \centering
@@ -738,162 +660,7 @@ float4 frag(Varyings IN) : SV_Target {
     \label{fig:shading-confronto}
 \end{figure}
 
-\section{Implementazione HLSL dei modelli classici}
-\label{sec:impl-classici}
-
-In questa sezione vengono presentate le implementazioni HLSL dei modelli di illuminazione trattati in precedenza, realizzate come shader custom per la Universal Render Pipeline di Unity.
-
-\subsection{Struttura comune}
-\label{subsec:struttura-comune}
-
-Gli shader condividono la stessa struttura: un vertex shader che trasforma posizione e normale, e un fragment shader che riceve i dati interpolati e vi applica il modello di illuminazione (Phong shading). La differenza tra uno shader e l'altro risiede unicamente nel calcolo della componente speculare.
-
-I parametri del materiale vengono esposti come proprietà nel blocco \texttt{Properties}, così da poter essere regolati dall'inspector di Unity senza modificare il codice.
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Struttura comune degli shader per i modelli classici.},
-    label={lst:common-structure}]
-Shader "Custom/NomeModello" {
-    Properties {
-        _Color    ("Colore",    Color)                      = (1, 1, 1, 1)
-        _AmbientK ("Ambient",   Range(0, 1))                = 0.1
-        _DiffuseK ("Diffuse",   Range(0, 1))                = 0.7
-        _SpecularK("Specular",  Range(0, 1))                = 0.5
-        _Shininess("Shininess", Range(1, 256))              = 32
-    }
-    SubShader {
-        Tags { "RenderPipeline"="UniversalPipeline" }
-        Pass {
-            Tags { "LightMode"="UniversalForward" }
-            HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #include "Packages/com.unity.render-pipelines.universal
-                      /ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal
-                      /ShaderLibrary/Lighting.hlsl"
-
-            struct Attributes {
-                float4 positionOS       : POSITION;
-                float3 normalOS         : NORMAL;
-            };
-            struct Varyings {
-                float4 positionCS       : SV_POSITION;
-                float3 normalWS         : TEXCOORD0;
-                float3 positionWS       : TEXCOORD1;
-            };
-
-            float4 _Color;
-            float  _AmbientK, _DiffuseK, _SpecularK, _Shininess;
-
-            Varyings vert(Attributes IN) {
-                Varyings OUT;
-                OUT.positionCS        = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.normalWS          = TransformObjectToWorldNormal(IN.normalOS);
-                OUT.positionWS        = TransformObjectToWorld(IN.positionOS.xyz);
-                return OUT;
-            }
-
-            float4 frag(Varyings IN) : SV_Target {
-                // fragment shader diverso in base al modello
-            }
-            ENDHLSL
-        }
-    }
-}
-\end{lstlisting}
-\end{minipage}
-
-\subsection{Modello di Phong}
-\label{subsec:impl-phong}
-
-L'implementazione traduce direttamente l'equazione \ref{eq:phong-complete} in codice HLSL.
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Fragment shader del modello di Phong.},
-    label={lst:frag-phong}]
-float4 frag(Varyings IN) : SV_Target {
-    Light light = GetMainLight(); // Sorgente luminosa
-    // Vettori
-    float3 N = normalize(IN.normalWS);
-    float3 L = normalize(light.direction);
-    float3 V = normalize(GetCameraPositionWS() - IN.positionWS);
-    float3 R = reflect(-L, N);
-    // Componenti
-    float3 ambient       = _AmbientK * _Color.rgb;
-    float3 diffuse       = _DiffuseK * max(dot(N, L), 0.0) * _Color.rgb;
-    float3 specular = _SpecularK * pow(max(dot(R, V), 0.0), _Shininess) * light.color;
-    // Risultato finale
-    return float4(ambient + diffuse + specular, 1.0);
-}
-\end{lstlisting}
-\end{minipage}
-
-\subsection{Modello di Blinn-Phong}
-\label{subsec:impl-blinn}
-
-Rispetto al modello di Phong, l'unica differenza è il calcolo della componente speculare: il vettore di riflessione $\mathbf{R}$ viene sostituito dall'halfway vector $\mathbf{H}$.
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Fragment shader del modello di Blinn-Phong.},
-    label={lst:frag-blinn}]
-float4 frag(Varyings IN) : SV_Target {
-    Light light = GetMainLight(); // Sorgente luminosa
-    // Vettori
-    float3 N = normalize(IN.normalWS);
-    float3 L = normalize(light.direction);
-    float3 V = normalize(GetCameraPositionWS() - IN.positionWS);
-    float3 H = normalize(L + V);
-    // Componenti
-    float3 ambient       = _AmbientK * _Color.rgb;
-    float3 diffuse       = _DiffuseK * max(dot(N, L), 0.0) * _Color.rgb;
-    float3 specular = _SpecularK * pow(max(dot(N, H), 0.0), _Shininess * 4.0) * light.color;
-    // Risultato finale
-    return float4(ambient + diffuse + specular, 1.0);
-}
-\end{lstlisting}
-\end{minipage}
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/classicModels/phong.png}
-        \caption{Modello di Phong}
-        \label{fig:phong-model}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/classicModels/blinnphong.png}
-        \caption{Modello di Blinn-Phong}
-        \label{fig:blinnphong-model}
-    \end{subfigure}
-    \caption[Confronto tra i modelli di Phong e Blinn-Phong]{Confronto tra i modelli di Phong e Blinn-Phong con parametri identici.}
-    \label{fig:phong-vs-blinn}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/cutoff/phong.jpg}
-        \caption{Modello di Phong}
-        \label{fig:phong-cutoff}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/cutoff/blinnphong.jpg}
-        \caption{Modello di Blinn-Phong}
-        \label{fig:blinn-cutoff}
-    \end{subfigure}
-    \caption[Confronto tra i riflessi speculari con luce radente]{Riflesso speculare su un piano con luce radente e un valore di shininess basso. Nel modello di Phong il riflesso presenta un taglio netto, assente in Blinn-Phong.}
-    \label{fig:cutoff-confronto}
-\end{figure}
+Le implementazioni HLSL dei modelli di Phong e Blinn-Phong e delle tre tecniche di shading sono presentate nel \Cref{chap:progetto}.
 
 
 % ============================================================
@@ -905,7 +672,7 @@ I modelli di Phong e Blinn-Phong, presentati nel capitolo precedente, sono model
 
 Il \textit{Physically Based Rendering} (PBR) nasce per superare queste limitazioni: anziché approssimare l'aspetto visivo con formule empiriche, si fonda su un modello fisico dell'interazione tra luce e materia basato sulla teoria delle microfacce. I materiali vengono descritti tramite grandezze fisicamente interpretabili (rugosità e metallicità) e viene rispettato il principio di conservazione dell'energia.
 
-Questo capitolo presenta i principi fisici alla base del PBR, la BRDF di Cook-Torrance e i suoi termini costitutivi, il \textit{workflow} metallic/roughness adottato nei motori moderni e un'introduzione all'\textit{Image-Based Lighting}, concludendo con l'implementazione HLSL in Unity.
+Questo capitolo presenta i principi fisici alla base del PBR, la BRDF di Cook-Torrance e i suoi termini costitutivi, il \textit{workflow} metallic/roughness adottato nei motori moderni e un'introduzione all'\textit{Image-Based Lighting}. L'implementazione HLSL del modello è presentata nel \Cref{chap:progetto}, dedicato alla parte pratica del lavoro.
 
 \section{Principi fisici}
 \label{sec:principi-pbr}
@@ -914,7 +681,7 @@ Il PBR si fonda su alcuni principi fisici che ne vincolano il comportamento e lo
 
 \subsection{Conservazione dell'energia}
 \label{subsec:conservazione}
-Il principio di conservazione dell’energia impone che la quantità totale di luce riflessa da una superficie non possa superare quella della luce incidente. Nei modelli classici questo vincolo non è garantito: i coefficienti $k_a$, $k_d$ e $k_s$ sono indipendenti tra loro e nulla impedisce che la loro combinazione produca una quantità di luce riflessa superiore a quella ricevuta. Nel PBR, invece, la luce incidente viene suddivisa in una componente riflessa e una che penetra nel materiale e viene diffusa. La formulazione del modello assicura che la somma di questi contributi non superi l’energia disponibile.
+Il principio di conservazione dell'energia impone che la quantità totale di luce riflessa da una superficie non possa superare quella della luce incidente. Nei modelli classici questo vincolo non è garantito: i coefficienti $k_a$, $k_d$ e $k_s$ sono indipendenti tra loro e nulla impedisce che la loro combinazione produca una quantità di luce riflessa superiore a quella ricevuta. Nel PBR, invece, la luce incidente viene suddivisa in una componente riflessa e una che penetra nel materiale e viene diffusa. La formulazione del modello assicura che la somma di questi contributi non superi l'energia disponibile.
 
 Di conseguenza, una superficie molto riflettente avrà necessariamente una componente diffusa debole, e viceversa. Questo produce un comportamento visivamente coerente: i materiali risultano convincenti sotto qualsiasi condizione di illuminazione, senza bisogno di regolazioni manuali.
 
@@ -948,10 +715,7 @@ Questa distribuzione viene descritta dal parametro \textit{roughness} (rugosità
 
 \subsection{Riflessione e rifrazione}
 \label{subsec:riflessione-rifrazione}
-Quando la luce colpisce la superficie di un oggetto, una parte viene riflessa 
-e una parte viene rifratta, penetrando nel materiale. La proporzione tra le due 
-è descritta dalle \textit{equazioni di Fresnel}, trattate nella 
-\Cref{subsec:fresnel}.
+Quando la luce colpisce la superficie di un oggetto, una parte viene riflessa e una parte viene rifratta, penetrando nel materiale. La proporzione tra le due è descritta dalle \textit{equazioni di Fresnel}, trattate nella \Cref{subsec:fresnel}.
 
 Il comportamento della luce rifratta dipende dal tipo di materiale:
 \begin{itemize}
@@ -964,7 +728,7 @@ Questa distinzione, assente nei modelli classici, viene modellata dal parametro 
 \section{La BRDF di Cook-Torrance}
 \label{sec:cook-torrance}
 
-Per descrivere come una superficie riflette la luce si utilizza una funzione chiamata \textit{BRDF} (\textit{Bidirectional Reflectance Distribution Function}). Essa definisce, data una direzione di illuminazione $\mathbf{L}$ e una direzione di osservazione $\mathbf{V}$, la frazione di luce incidente che viene riflessa dalla superficie verso l’osservatore.
+Per descrivere come una superficie riflette la luce si utilizza una funzione chiamata \textit{BRDF} (\textit{Bidirectional Reflectance Distribution Function}). Essa definisce, data una direzione di illuminazione $\mathbf{L}$ e una direzione di osservazione $\mathbf{V}$, la frazione di luce incidente che viene riflessa dalla superficie verso l'osservatore.
 
 La BRDF non fornisce il colore finale di un punto: descrive solo il rapporto tra luce ricevuta e luce riflessa. Per ottenere l'illuminazione effettiva va moltiplicata per l'intensità della luce incidente $L_i$ e per il coseno dell'angolo di incidenza $\mathbf{N} \cdot \mathbf{L}$, sommando il contributo di tutte le sorgenti presenti nella scena:
 
@@ -1115,6 +879,7 @@ dove $\mathbf{H}$ è l'halfway vector, $\mathbf{V}$ è la direzione dell'osserva
         Vetro              & $(0.03,\ 0.03,\ 0.03)$ & \colorbox[RGB]{8,8,8}{\phantom{XX}} \\
         Plastica           & $(0.05,\ 0.05,\ 0.05)$ & \colorbox[RGB]{13,13,13}{\phantom{XX}} \\
         Diamante           & $(0.17,\ 0.17,\ 0.17)$ & \colorbox[RGB]{43,43,43}{\phantom{XX}} \\
+        \hline
         Ferro              & $(0.56,\ 0.57,\ 0.58)$ & \colorbox[RGB]{143,145,148}{\phantom{XX}} \\
         Rame               & $(0.95,\ 0.64,\ 0.54)$ & \colorbox[RGB]{242,163,138}{\phantom{XX}} \\
         Oro                & $(1.00,\ 0.71,\ 0.29)$ & \colorbox[RGB]{255,181,74}{\phantom{XX}} \\
@@ -1122,7 +887,7 @@ dove $\mathbf{H}$ è l'halfway vector, $\mathbf{V}$ è la direzione dell'osserva
         Argento            & $(0.95,\ 0.93,\ 0.88)$ & \colorbox[RGB]{242,237,224}{\phantom{XX}} \\
         \hline
     \end{tabular}
-    \caption{Valori di $F_0$ per alcuni materiali comuni. I dielettrici hanno valori bassi e acromatici, i metalli valori alti e colorati.}
+    \caption{Valori di $F_0$ per alcuni materiali comuni. Sopra la linea i dielettrici, con valori bassi e acromatici; sotto i metalli, con valori alti e colorati.}
     \label{tab:f0-valori}
 \end{table}
 
@@ -1178,7 +943,7 @@ La funzione $G$ combina i contributi di masking e shadowing tramite il \textit{m
     \label{eq:smith}
 \end{equation}
 
-dove $G_1(\mathbf{N}, \mathbf{V}, k)$ modella il masking, ossia la frazione di microfacce visibili all'osservatore, mentre $G_1(\mathbf{N}, \mathbf{L}, k)$ modella lo shadowing, cioè la frazione di microfacce raggiunte dalla luce. Il parametro $k$ è una rimappatura della rugosità $\alpha$, definita sotto. 
+dove $G_1(\mathbf{N}, \mathbf{V}, k)$ modella il masking, ossia la frazione di microfacce visibili all'osservatore, mentre $G_1(\mathbf{N}, \mathbf{L}, k)$ modella lo shadowing, cioè la frazione di microfacce raggiunte dalla luce. Il parametro $k$ è una rimappatura della rugosità $\alpha$, definita sotto.
 
 Il prodotto dei due contributi risulta diverso da zero solo quando una microfaccia è contemporaneamente visibile all'osservatore e illuminata dalla sorgente luminosa.
 
@@ -1197,7 +962,7 @@ dove $\mathbf{X}$ è un vettore generico sostituito rispettivamente con $\mathbf
     \label{eq:k-direct}
 \end{equation}
 
-L'effetto visivo di $G$ è quello di attenuare le zone illuminate ad angoli radenti, in modo più marcato all'aumentare della rugosità.
+L'effetto visivo di $G$ è quello di scurire i bordi degli oggetti, dove la superficie è osservata o illuminata ad angoli radenti, in modo più marcato all'aumentare della rugosità.
 
 \begin{figure}[H]
     \centering
@@ -1225,10 +990,17 @@ L'effetto visivo di $G$ è quello di attenuare le zone illuminate ad angoli rade
     \label{fig:geometry-confronto}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/pbr/confronto/pbr.png}
+    \caption[Modello di Cook-Torrance]{Una sfera renderizzata con il modello di Cook-Torrance.}
+    \label{fig:pbr-model}
+\end{figure}
+
 \section{Metallic/Roughness workflow}
 \label{sec:workflow}
 
-I modelli PBR sono descritti in termini di grandezze fisiche: riflettanza base $F_0$, rugosità delle microfacce, distinzione tra metalli e dielettrici. Per rendere questi parametri utilizzabili in pratica, i motori di rendering moderni adottano il \textit{metallic/roughness workflow}, che riduce la configurazione di un materiale a pochi parametri intuitivi.
+Il modello PBR è descritto in termini di grandezze fisiche: riflettanza base $F_0$, rugosità delle microfacce, distinzione tra metalli e dielettrici. Per rendere questi parametri utilizzabili in pratica, i motori di rendering moderni adottano il \textit{metallic/roughness workflow}, che riduce la configurazione di un materiale a pochi parametri intuitivi.
 
 \subsection{Parametri di un materiale}
 \label{subsec:parametri-materiale}
@@ -1240,7 +1012,6 @@ Un materiale PBR nel metallic/roughness workflow è descritto da tre parametri p
         F_0 = \text{lerp}(0.04,\ \textit{albedo},\ \textit{metallic})
         \label{eq:f0-lerp}
     \end{equation}
-
     \item \textbf{Roughness}: la rugosità della superficie, compresa tra 0 (perfettamente liscia) e 1 (molto rugosa). Controlla il parametro $\alpha$ utilizzato nei termini $D$ e $G$ della BRDF.
 \end{itemize}
 Rispetto ai coefficienti $k_a$, $k_d$, $k_s$ dei modelli classici, questi parametri hanno un significato fisico diretto e producono risultati coerenti senza necessità di regolazione manuale: la struttura del modello impedisce configurazioni che violino il principio di conservazione dell'energia.
@@ -1313,293 +1084,13 @@ L'implementazione completa dell'IBL esula dagli obiettivi di questa tesi: negli 
     \label{fig:ibl-example}
 \end{figure}
 
-\section{Implementazione HLSL del modello di Cook-Torrance}
-\label{sec:impl-pbr}
-
-In questa sezione viene presentata l'implementazione HLSL del modello di Cook-Torrance, realizzata come shader custom per la Universal Render Pipeline di Unity.
-
-\subsection{Struttura dello shader}
-\label{subsec:struttura-pbr}
-
-Lo shader espone all'inspector Unity i parametri del workflow metallic/roughness: albedo, metallic, roughness e un termine ambientale. La struttura del vertex shader è identica a quella utilizzata per i modelli classici (\Cref{subsec:struttura-comune}).
-
-Le tre funzioni $D$, $F$ e $G$ vengono implementate come funzioni HLSL separate, richiamate poi nel fragment shader per calcolare il colore finale.
-
-\subsection{Termine D}
-\label{subsec:impl-ggx}
-
-Implementazione della funzione \ref{eq:ggx}:
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Implementazione del termine D.},
-    label={lst:impl-ggx}]
-float D_GGX(float3 N, float3 H, float roughness) {
-    float a  = pow(roughness, 2.0);
-    float NdotH  = max(dot(N, H), 0.0);
-    float denom = pow(NdotH, 2.0) * (pow(a, 2.0) - 1.0) + 1.0;
-    return pow(a, 2.0) / (PI * pow(denom, 2.0));
-}
-\end{lstlisting}
-\end{minipage}
-
-\subsection{Termine F}
-\label{subsec:impl-fresnel}
-
-Implementazione della funzione \ref{eq:fresnel-schlick}:
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Implementazione del termine F.},
-    label={lst:impl-fresnel}]
-float3 F_Schlick(float3 H, float3 V, float3 F0) {
-    float HdotV = max(dot(H, V), 0.0);
-    return F0 + (1.0 - F0) * pow(1.0 - HdotV, 5.0);
-}
-\end{lstlisting}
-\end{minipage}
-
-\subsection{Termine G}
-\label{subsec:impl-geometry}
-
-Implementazione delle funzioni \ref{eq:smith} e \ref{eq:schlick-ggx}:
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Implementazione del termine G.},
-    label={lst:impl-geometry}]
-float G1_SchlickGGX(float3 N, float3 X, float roughness) {
-    float NdotX = max(dot(N, X), 0.0);
-    float k = pow(roughness + 1.0, 2.0) / 8.0;
-    return NdotX / (NdotX * (1.0 - k) + k);
-}
-
-float G_Smith(float3 N, float3 V, float3 L, float roughness) {
-    return G1_SchlickGGX(N, V, roughness) * G1_SchlickGGX(N, L, roughness);
-}
-\end{lstlisting}
-\end{minipage}
-
-\subsection{Fragment shader}
-\label{subsec:impl-frag-pbr}
-
-Il fragment shader assembla i tre termini nella BRDF di Cook-Torrance, combinando la componente speculare con quella diffusa di Lambert:
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Fragment shader del modello Cook-Torrance.},
-    label={lst:frag-pbr}]
-float4 frag(Varyings IN) : SV_Target {
-    Light light = GetMainLight(); // Sorgente luminosa principale
-
-    // Vettori necessari
-    float3 N = normalize(IN.normalWS);
-    float3 L = normalize(light.direction);
-    float3 V = normalize(GetCameraPositionWS() - IN.positionWS);
-    float3 H = normalize(L + V);
-
-    float NdotL = max(dot(N, L), 0.0);
-    float NdotV = max(dot(N, V), 0.0);
-
-    // Calcolo F0
-    float3 F0 = lerp(0.04, _Albedo.rgb, _Metallic);
-
-    // Termini della BRDF
-    float  D = D_GGX(N, H, _Roughness);
-    float3 F = F_Schlick(H, V, F0);
-    float  G = G_Smith(N, V, L, _Roughness);
-    
-    // Componente diffusa
-    float3 kD = (1.0 - F) * (1.0 - _Metallic);
-    float3 diffuse = kD * _Albedo.rgb / PI;
-
-    // Componente speculare
-    float3 specular = (D * F * G) / (4.0 * NdotV * NdotL + 0.0001);
-
-    // BRDF finale
-    float3 brdf = diffuse + specular;
-
-    // Risultato finale (rendering equation)
-    float3 color = brdf * light.color * NdotL;
-
-    // Approssimazione del termine ambientale
-    color += _AmbientK * _Albedo.rgb;
-
-    // Colore finale
-    return float4(color, 1.0);
-}
-\end{lstlisting}
-\end{minipage}
-
-\subsection{Confronto tra Blinn-Phong e Cook-Torrance}
-\label{subsec:confronto-pbr-blinn}
-
-Le immagini seguenti mettono a confronto il modello di Blinn-Phong e il modello di Cook-Torrance sullo stesso oggetto e nelle stesse condizioni di illuminazione.
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.4\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/confronto/blinn-phong.png}
-        \caption{Blinn-Phong}
-        \label{fig:confronto-blinn}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.4\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/confronto/pbr.png}
-        \caption{Cook-Torrance}
-        \label{fig:confronto-pbr}
-    \end{subfigure}
-    \caption[Confronto tra i modelli di Blinn-Phong e di Cook-Torrance]{Confronto tra i modelli di Blinn-Phong e di Cook-Torrance nelle stesse condizioni di illuminazione.}
-    \label{fig:confronto-pbr-blinn}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.19\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/metallic/m0.png}
-        \caption{0}
-        \label{fig:metal-0}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.19\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/metallic/m0.25.png}
-        \caption{0.25}
-        \label{fig:metal-025}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.19\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/metallic/m0.5.png}
-        \caption{0.5}
-        \label{fig:metal-05}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.19\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/metallic/m0.75.png}
-        \caption{0.75}
-        \label{fig:metal-075}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.19\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/metallic/m1.png}
-        \caption{1}
-        \label{fig:metal-1}
-    \end{subfigure}
-    \caption[Effetto del parametro metallic]{Effetto del parametro metallic (roughness = 0.3). Al crescere di metallic la componente diffusa scompare e il riflesso speculare assume il colore dell'albedo.}
-    \label{fig:metallic-confronto}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.4\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/confronto/blinn-oro.png}
-        \caption{Blinn-Phong}
-        \label{fig:confronto-blinn-oro}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.4\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/confronto/pbr-oro.png}
-        \caption{Cook-Torrance}
-        \label{fig:confronto-pbr-oro}
-    \end{subfigure}
-    \caption[Confronto su un materiale metallico]{Confronto su un materiale metallico (oro). In Blinn-Phong il riflesso speculare è bianco, in Cook-Torrance assume il colore dell'albedo.}
-    \label{fig:confronto-oro}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.4\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/confronto/blinn-rough.png}
-        \caption{Blinn-Phong}
-        \label{fig:confronto-blinn-rough}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.4\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/confronto/pbr-rough.png}
-        \caption{Cook-Torrance}
-        \label{fig:confronto-pbr-rough}
-    \end{subfigure}
-    \caption[Confronto con rugosità elevata]{Confronto con rugosità elevata. In Cook-Torrance i bordi risultano più scuri per effetto del termine G (auto-ombreggiatura delle microfacce), assente in Blinn-Phong.}
-    \label{fig:confronto-rough}
-\end{figure}
-
-\subsection{Supporto alle texture}
-\label{subsec:impl-texture}
-
-L'implementazione presentata utilizza valori costanti per i parametri del materiale. Per supportare le texture è sufficiente sostituire le variabili uniformi con campionamenti delle texture corrispondenti nel fragment shader:
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Lettura dei parametri da texture.},
-    label={lst:texture-sampling}]
-float3 albedo           = SAMPLE_TEXTURE2D(_AlbedoMap,    sampler_AlbedoMap,    IN.uv).rgb;
-float  metallic         = SAMPLE_TEXTURE2D(_MetallicMap,  sampler_MetallicMap,  IN.uv).r;
-float  roughness        = SAMPLE_TEXTURE2D(_RoughnessMap, sampler_RoughnessMap, IN.uv).r;
-\end{lstlisting}
-\end{minipage}
-
-La normal map richiede un passaggio aggiuntivo. Le normali memorizzate nella texture sono espresse in un sistema di coordinate locale alla superficie (\textit{tangent space}) e devono essere trasformate in world space per essere utilizzate nei calcoli di illuminazione.
-
-Per farlo si costruisce la matrice \textbf{TBN} dai tre vettori che descrivono l'orientamento della superficie nel mondo: la tangente $\mathbf{T}$, la bitangente $\mathbf{B}$ e la normale $\mathbf{N}$, trasformati in world space dal vertex shader. La normale letta dalla texture viene moltiplicata per questa matrice, ottenendo una normale in world space che tiene conto dei dettagli simulati dalla normal map:
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Applicazione della normal map (fragment shader).},
-    label={lst:normal-map}]
-// Lettura della normale dalla texture (in tangent space)
-float3 normalTS =
-        UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, IN.uv));
-
-// Matrice TBN
-float3x3 TBN = float3x3(
-    normalize(IN.tangentWS),
-    normalize(IN.bitangentWS),
-    normalize(IN.normalWS)
-);
-
-// Normale modificata in world space
-float3 N = normalize(mul(normalTS, TBN));
-\end{lstlisting}
-\end{minipage}
-
-La normale $\mathbf{N}$ risultante sostituisce quella interpolata dal vertex shader, dando l'illusione di dettagli geometrici senza aggiungere geometria reale.
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/confronto/senza-texture.png}
-        \caption{Valori costanti}
-        \label{fig:pbr-no-tex}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/pbr/confronto/con-texture.png}
-        \caption{Con texture maps}
-        \label{fig:pbr-tex}
-    \end{subfigure}
-    \caption[Confronto tra valori costanti e texture maps]{Il modello di Cook-Torrance con valori costanti e con texture maps. Le texture permettono di variare i parametri del materiale punto per punto.}
-    \label{fig:pbr-texture-confronto}
-\end{figure}
-
 
 % ============================================================
 %  CAPITOLO 4 — SHADER PERSONALIZZATI
 % ============================================================
 \chapter{Shader personalizzati per effetti non fotorealistici} \label{chap:custom}
 
-Dopo aver analizzato modelli di illuminazione orientati alla resa realistica, questo capitolo mostra come la stessa pipeline programmabile possa essere utilizzata anche per ottenere effetti stilizzati e non fotorealistici. Gli shader presentati non hanno l’obiettivo di simulare fedelmente il comportamento fisico della luce, ma di evidenziare la flessibilità offerta da vertex e fragment shader nella definizione di modelli di resa personalizzati.
+Dopo aver analizzato modelli di illuminazione orientati alla resa realistica, questo capitolo mostra come la stessa pipeline programmabile possa essere utilizzata anche per ottenere effetti stilizzati e non fotorealistici. Gli shader presentati non hanno l'obiettivo di simulare fedelmente il comportamento fisico della luce, ma di evidenziare la flessibilità offerta da vertex e fragment shader nella definizione di modelli di resa personalizzati. Le relative implementazioni HLSL sono presentate nel \Cref{chap:progetto}, dedicato alla parte pratica del lavoro.
 
 \section{Toon shading}
 \label{sec:toon}
@@ -1633,66 +1124,7 @@ dove $t$ è la soglia e $k_s$ l'intensità del riflesso. Il risultato è un rifl
 \subsection{Linea di contorno}
 \label{subsec:toon-outline}
 
-Per completare l'effetto fumetto, è possibile aggiungere un contorno nero attorno all'oggetto. La tecnica utilizzata si basa su un secondo pass di rendering: l'oggetto viene disegnato una prima volta leggermente ingrandito (estrudendo i vertici lungo le normali) e con le facce anteriori nascoste (\texttt{Cull Front}), mostrando solo le facce posteriori colorate di nero. Il pass principale disegna poi l'oggetto vero sopra, lasciando visibile il bordo nero
-come contorno.
-
-\subsection{Implementazione HLSL}
-\label{subsec:impl-toon}
-
-L'implementazione è composta da due pass: il primo per la linea di contorno, il secondo per il toon shading.
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Primo pass: estrude i vertici lungo la normale e disegna solo le facce posteriori.},
-    label={lst:toon-outline}]
-Pass {
-    Cull Front  // Nasconde le facce anteriori
-    HLSLPROGRAM
-    
-    // ...
-
-    Varyings vert(Attributes IN) {
-        Varyings OUT;
-        float3 pos = IN.positionOS.xyz + IN.normalOS * _OutlineSize; // Estrusione
-        OUT.positionCS = TransformObjectToHClip(pos);
-        return OUT;
-    }
-    
-    float4 frag(Varyings IN) : SV_Target {
-        return _OutlineColor; // Contorno di colore uniforme
-    }
-    ENDHLSL
-}
-\end{lstlisting}
-\end{minipage}
-
-\begin{minipage}{\textwidth}
-\begin{lstlisting}[style=hlsl,
-    caption={Fragment shader del secondo pass: la componente diffusa viene quantizzata, mentre alla speculare viene applicata una soglia},
-    label={lst:toon-frag}]
-float4 frag(Varyings IN) : SV_Target {
-    Light light = GetMainLight();
-
-    // Vettori
-    float3 N = normalize(IN.normalWS);
-    float3 L = normalize(light.direction);
-    float3 V = normalize(GetCameraPositionWS() - IN.positionWS);
-    float3 H = normalize(L + V);
-
-    // Componente diffusa quantizzata
-    float NdotL = max(dot(N, L), 0.0);
-    float toon  = floor(NdotL * _Steps) / _Steps;
-
-    // Componente speculare con soglia
-    float NdotH = max(dot(N, H), 0.0);
-    float spec  = NdotH > _SpecThresh ? _SpecularK : 0.0;
-
-    // Colore finale
-    float3 color = _Color.rgb * toon + spec * light.color;
-    return float4(color, 1.0);
-}
-\end{lstlisting}
-\end{minipage}
+Per completare l'effetto fumetto, è possibile aggiungere un contorno nero attorno all'oggetto. La tecnica utilizzata si basa su un secondo pass di rendering: l'oggetto viene disegnato una prima volta leggermente ingrandito (estrudendo i vertici lungo le normali) e con le facce anteriori nascoste (\texttt{Cull Front}), mostrando solo le facce posteriori colorate di nero. Il pass principale disegna poi l'oggetto vero sopra, lasciando visibile il bordo nero come contorno.
 
 \begin{figure}[H]
     \centering
@@ -1746,25 +1178,6 @@ float4 frag(Varyings IN) : SV_Target {
     \label{fig:toon-steps}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/toon/blinn.png}
-        \caption{Blinn-Phong}
-        \label{fig:toon-vs-blinn}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/toon/toon.png}
-        \caption{Toon}
-        \label{fig:toon-vs-toon}
-    \end{subfigure}
-    \caption[Confronto tra Blinn-Phong e toon shading]{Confronto tra Blinn-Phong e toon shading sullo stesso oggetto.}
-    \label{fig:toon-confronto}
-\end{figure}
-
 \section{Hologram shader}
 \label{sec:hologram}
 Questo shader non si basa su un modello di illuminazione fisico, ma combina tre effetti sovrapposti per simulare l'aspetto di un ologramma: \textit{rim lighting}, pattern a strisce e \textit{flicker}.
@@ -1811,11 +1224,461 @@ dove $f$ è la frequenza del tremolio e $t$ il tempo. Il valore oscilla tra $0.9
 \subsection{Trasparenza}
 \label{subsec:trasparenza}
 
-A differenza degli shader precedenti, questo richiede la trasparenza: l'oggetto deve apparire semi-trasparente. In Unity si ottiene abilitando l'\textit{alpha blending}, che combina il colore di ogni frammento con quello già presente nel framebuffer in base al valore alpha, e impostando la coda di rendering a \texttt{Transparent}:
+A differenza degli shader precedenti, questo richiede la trasparenza: l'oggetto deve apparire semi-trasparente. In Unity si ottiene abilitando l'\textit{alpha blending}, che combina il colore di ogni frammento con quello già presente nel framebuffer in base al valore alpha, e impostando la coda di rendering a \texttt{Transparent}. È inoltre necessario disabilitare la scrittura nel depth buffer, per evitare che le parti trasparenti dell'oggetto nascondano la geometria retrostante.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.67\textwidth]{img/hologram/hologram.png}
+    \caption[Effetto ologramma applicato a un oggetto]{Effetto ologramma applicato a un oggetto. I bordi appaiono più luminosi e opachi, le bande orizzontali scorrono verticalmente e un leggero tremolio simula l'instabilità della proiezione.}
+    \label{fig:hologram}
+\end{figure}
+
+Gli shader descritti in questo capitolo, insieme ai modelli di illuminazione classici e al modello PBR presentati nei capitoli precedenti, sono stati integrati nel progetto dimostrativo sviluppato in Unity. Il capitolo successivo descrive la struttura del progetto, le scelte implementative adottate e le modalità con cui i diversi shader possono essere confrontati all'interno della scena.
+
+
+% ============================================================
+%  CAPITOLO 5 — PROGETTO UNITY
+% ============================================================
+\chapter{Implementazione, test e confronto degli shader in Unity} \label{chap:progetto}
+
+I capitoli precedenti hanno presentato la teoria dei modelli di illuminazione e delle tecniche di shading. Questo capitolo raccoglie l'implementazione di tutti gli shader in HLSL, la loro integrazione nel progetto Unity, le scene di test realizzate e il confronto visivo e prestazionale tra i modelli.
+
+Tutti gli shader sono stati realizzati come shader custom per la Universal Render Pipeline (URP) di Unity, scritti in HLSL all'interno della struttura ShaderLab introdotta nel \Cref{sec:hlsl}. Il capitolo si apre con le implementazioni, prosegue con la descrizione del progetto e delle scene di test, e si conclude con il confronto tra i modelli e alcune considerazioni sul costo computazionale.
+
+\section{Shader implementati}
+\label{sec:shader-implementati}
+
+Sono stati implementate le tre tecniche di shading (flat, Gouraud, Phong shading), i tre modelli di illuminazione trattati (Phong, Blinn-Phong, Cook-Torrance), la variante di Cook-Torrance con texture e i due shader non fotorealistici (toon e hologram). La \Cref{tab:shader-riepilogo} ne riassume i parametri principali e lo scopo all'interno del confronto.
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{p{2.8cm} p{5cm} p{5cm}}
+        \hline
+        \textbf{Shader} & \textbf{Parametri principali} & \textbf{Scopo nel confronto}\\
+        \hline
+        Phong & ambient, diffuse, specular, shininess & Mostrare il modello classico originale \\
+        \hline
+        Blinn-Phong & ambient, diffuse, specular, shininess & Confrontare la componente speculare con Phong \\
+        \hline
+        Cook-Torrance & albedo, metallic, roughness, ambient & Valutare una BRDF fisicamente plausibile \\
+        \hline
+        PBR con texture & albedo, metallic, roughness e normal map & Mostrare la variazione locale dei parametri \\
+        \hline
+        Toon & fasce, soglia speculare, spessore outline & Mostrare una resa non fotorealistica \\
+        \hline
+        Hologram & intensità bordi, densità linee, velocità flicker & Mostrare trasparenza ed effetti animati \\
+        \hline
+    \end{tabular}
+    \caption[Riepilogo degli shader implementati]{Riepilogo degli shader implementati, con i parametri principali e lo scopo all'interno del confronto. Flat e Gouraud shading non compaiono come modelli a sé ma come tecniche di shading (\Cref{subsec:impl-shading-tecniche}), applicate al modello di Blinn-Phong.}
+    \label{tab:shader-riepilogo}
+\end{table}
+
+\subsection{Tecniche di shading}
+\label{subsec:impl-shading-tecniche}
+
+Le tre tecniche di shading (\Cref{sec:shading}) si distinguono per il punto in cui viene valutato il modello di illuminazione e per i dati scambiati tra vertex e fragment shader. La tecnica è indipendente dal modello di illuminazione adottato: per questo motivo, nei frammenti di codice seguenti, il calcolo dell'illuminazione è lasciato come segnaposto.
+
+Nel \textbf{flat shading} il modello di illuminazione viene valutato nel vertex shader e il risultato è annotato con il modificatore \texttt{nointerpolation}, che impedisce alla GPU di interpolare il colore tra i vertici: l'intero triangolo riceve così lo stesso valore.
 
 \begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
-    caption={Configurazione per la trasparenza.},
+    caption={Implementazione del flat shading.},
+    label={lst:flat-impl}]
+struct Attributes {
+    float4 positionOS : POSITION;
+    float3 normalOS   : NORMAL;
+};
+struct Varyings {
+    float4 positionCS : SV_POSITION;
+    nointerpolation float3 color : TEXCOORD0; // colore non interpolato
+};
+
+Varyings vert(Attributes IN) {
+    Varyings OUT;
+    OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
+    float3 posWS = TransformObjectToWorld(IN.positionOS.xyz);
+    float3 N = normalize(TransformObjectToWorldNormal(IN.normalOS));
+    OUT.color = ... // calcolo dell'illuminazione
+    return OUT;
+}
+
+float4 frag(Varyings IN) : SV_Target {
+    return float4(IN.color, 1.0);
+}
+\end{lstlisting}
+\end{minipage}
+
+Nel \textbf{Gouraud shading} il calcolo dell'illuminazione avviene sempre nel vertex shader, ma il colore viene interpolato tra i vertici. L'unica differenza rispetto al flat shading è la rimozione di \texttt{nointerpolation}:
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Implementazione del Gouraud shading.},
+    label={lst:gouraud-impl}]
+struct Attributes {
+    float4 positionOS : POSITION;
+    float3 normalOS   : NORMAL;
+};
+struct Varyings {
+    float4 positionCS : SV_POSITION;
+    float3 color      : TEXCOORD0; // colore interpolato
+};
+
+Varyings vert(Attributes IN) {
+    Varyings OUT;
+    OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
+    float3 posWS = TransformObjectToWorld(IN.positionOS.xyz);
+    float3 N = normalize(TransformObjectToWorldNormal(IN.normalOS));
+    OUT.color = ... // calcolo dell'illuminazione
+    return OUT;
+}
+
+float4 frag(Varyings IN) : SV_Target {
+    return float4(IN.color, 1.0);
+}
+\end{lstlisting}
+\end{minipage}
+
+Il fragment shader è identico a quello del flat shading: restituisce il colore senza ulteriori calcoli. La differenza visiva è interamente dovuta all'interpolazione operata dalla rasterizzazione.
+
+Nel \textbf{Phong shading} il calcolo viene spostato nel fragment shader. Il vertex shader non calcola più il colore, ma passa la normale e la posizione, che vengono interpolate dalla rasterizzazione. Il fragment shader utilizza la normale interpolata (rinormalizzata) per valutare il modello di illuminazione in ogni frammento:
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Implementazione del Phong shading.},
+    label={lst:phong-shading-impl}]
+struct Attributes {
+    float4 positionOS : POSITION;
+    float3 normalOS   : NORMAL;
+};
+struct Varyings {
+    float4 positionCS : SV_POSITION;
+    float3 normalWS   : TEXCOORD0; // normale interpolata
+    float3 positionWS : TEXCOORD1;
+};
+
+Varyings vert(Attributes IN) {
+    Varyings OUT;
+    OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
+    OUT.normalWS   = TransformObjectToWorldNormal(IN.normalOS);
+    OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
+    return OUT;
+}
+
+float4 frag(Varyings IN) : SV_Target {
+    float3 N = normalize(IN.normalWS);
+    return ... // calcolo dell'illuminazione
+}
+\end{lstlisting}
+\end{minipage}
+
+Tutti gli shader presentati nel resto del capitolo utilizzano il Phong shading, poiché è l'unico che produce riflessi speculari accurati indipendentemente dalla densità della mesh.
+
+\subsection{Struttura comune dei modelli classici}
+\label{subsec:struttura-comune}
+
+Gli shader dei modelli classici (Phong e Blinn-Phong) condividono la stessa struttura, basata sul Phong shading: un vertex shader che trasforma posizione e normale dallo spazio oggetto allo spazio mondo, e un fragment shader che applica il modello di illuminazione per ogni frammento. La differenza tra i due risiede unicamente nel calcolo della componente speculare.
+
+I parametri del materiale vengono esposti come proprietà nel blocco \texttt{Properties}, così da poter essere regolati a runtime dal pannello descritto nella \Cref{sec:pannello}, senza modificare il codice.
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Struttura comune degli shader per i modelli classici.},
+    label={lst:common-structure}]
+Shader "Custom/NomeModello" {
+    Properties {
+        _Color    ("Colore",    Color)                      = (1, 1, 1, 1)
+        _AmbientK ("Ambient",   Range(0, 1))                = 0.1
+        _DiffuseK ("Diffuse",   Range(0, 1))                = 0.7
+        _SpecularK("Specular",  Range(0, 1))                = 0.5
+        _Shininess("Shininess", Range(1, 256))  = 32
+    }
+    SubShader {
+        Tags { "RenderPipeline"="UniversalPipeline" }
+        Pass {
+            Tags { "LightMode"="UniversalForward" }
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+            struct Attributes {
+                float4 positionOS : POSITION;
+                float3 normalOS   : NORMAL;
+            };
+            struct Varyings {
+                float4 positionCS : SV_POSITION;
+                float3 normalWS   : TEXCOORD0;
+                float3 positionWS : TEXCOORD1;
+            };
+
+            float4 _Color;
+            float  _AmbientK, _DiffuseK, _SpecularK, _Shininess;
+
+            Varyings vert(Attributes IN) {
+                Varyings OUT;
+                OUT.positionCS = TransformObjectToHClip(IN.positionOS.xyz);
+                OUT.normalWS   = TransformObjectToWorldNormal(IN.normalOS);
+                OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
+                return OUT;
+            }
+
+            float4 frag(Varyings IN) : SV_Target {
+                // fragment shader diverso in base al modello
+            }
+            ENDHLSL
+        }
+    }
+}
+\end{lstlisting}
+\end{minipage}
+
+\subsection{Modello di Phong}
+\label{subsec:impl-phong}
+
+Lo shader di Phong implementa il modello classico originale (\Cref{sec:phong}) e funge da riferimento di partenza nel confronto. Espone i quattro coefficienti del modello (ambient, diffuse, specular e shininess) oltre al colore del materiale. Il fragment shader traduce direttamente l'equazione~\eqref{eq:phong-complete}, calcolando il vettore di riflessione $\mathbf{R}$ e la componente speculare in funzione dell'angolo tra $\mathbf{R}$ e la direzione di vista.
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Fragment shader del modello di Phong.},
+    label={lst:frag-phong}]
+float4 frag(Varyings IN) : SV_Target {
+    Light light = GetMainLight(); // Sorgente luminosa
+    
+    // Vettori
+    float3 N = normalize(IN.normalWS);
+    float3 L = normalize(light.direction);
+    float3 V = normalize(GetCameraPositionWS() - IN.positionWS);
+    float3 R = reflect(-L, N);
+    
+    // Componenti
+    float3 ambient  = _AmbientK * _Color.rgb;
+    float3 diffuse  = _DiffuseK * max(dot(N, L), 0.0) * _Color.rgb;
+    float3 specular = _SpecularK * pow(max(dot(R, V), 0.0), _Shininess) * light.color;
+    
+    // Risultato finale
+    return float4(ambient + diffuse + specular, 1.0);
+}
+\end{lstlisting}
+\end{minipage}
+
+\subsection{Modello di Blinn-Phong}
+\label{subsec:impl-blinn}
+
+Lo shader di Blinn-Phong (\Cref{sec:blinn-phong}) differisce da quello di Phong unicamente nel calcolo della componente speculare: il vettore di riflessione $\mathbf{R}$ è sostituito dall'halfway vector $\mathbf{H}$, e l'esponente di shininess viene moltiplicato per quattro per ottenere un riflesso di dimensione comparabile. Permette di confrontare direttamente le due formulazioni della speculare, incluso il comportamento con luce radente.
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Fragment shader del modello di Blinn-Phong.},
+    label={lst:frag-blinn}]
+float4 frag(Varyings IN) : SV_Target {
+    Light light = GetMainLight(); // Sorgente luminosa
+    
+    // Vettori
+    float3 N = normalize(IN.normalWS);
+    float3 L = normalize(light.direction);
+    float3 V = normalize(GetCameraPositionWS() - IN.positionWS);
+    float3 H = normalize(L + V);
+    
+    // Componenti
+    float3 ambient  = _AmbientK * _Color.rgb;
+    float3 diffuse  = _DiffuseK * max(dot(N, L), 0.0) * _Color.rgb;
+    float3 specular = _SpecularK * pow(max(dot(N, H), 0.0), _Shininess * 4.0) * light.color;
+    
+    // Risultato finale
+    return float4(ambient + diffuse + specular, 1.0);
+}
+\end{lstlisting}
+\end{minipage}
+
+\subsection{Modello di Cook-Torrance}
+\label{subsec:impl-pbr}
+
+Lo shader PBR implementa la BRDF di Cook-Torrance (\Cref{sec:cook-torrance}) e permette di valutare una resa fisicamente plausibile, confrontabile con i modelli classici. Espone i parametri del workflow metallic/roughness: albedo, metallic, roughness e un termine ambientale. La struttura del vertex shader è identica a quella dei modelli classici.
+
+I tre termini $D$, $F$ e $G$ della BRDF sono implementati come funzioni HLSL separate, richiamate nel fragment shader.
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Funzioni dei termini D, F e G della BRDF.},
+    label={lst:pbr-dfg}]
+// D - distribuzione delle microfacce
+float D_GGX(float3 N, float3 H, float roughness) {
+    float a  = pow(roughness, 2.0); // alpha = roughness^2
+    float NdotH = max(dot(N, H), 0.0);
+    float denom = pow(NdotH, 2.0) * (pow(a, 2.0) - 1.0) + 1.0;
+    return pow(a, 2.0) / (PI * pow(denom, 2.0));
+}
+
+// F - effetto Fresnel
+float3 F_Schlick(float3 H, float3 V, float3 F0) {
+    float HdotV = max(dot(H, V), 0.0);
+    return F0 + (1.0 - F0) * pow(1.0 - HdotV, 5.0);
+}
+
+// G - auto-ombreggiatura
+float G1_SchlickGGX(float3 N, float3 X, float roughness) {
+    float NdotX = max(dot(N, X), 0.0);
+    float k = pow(roughness + 1.0, 2.0) / 8.0;
+    return NdotX / (NdotX * (1.0 - k) + k);
+}
+
+float G_Smith(float3 N, float3 V, float3 L, float roughness) {
+    return G1_SchlickGGX(N, V, roughness) * G1_SchlickGGX(N, L, roughness);
+}
+\end{lstlisting}
+\end{minipage}
+
+Il fragment shader assembla i tre termini nella BRDF, combinando la componente speculare con quella diffusa di Lambert e applicando la rendering equation~\eqref{eq:rendering-eq}.
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Fragment shader del modello di Cook-Torrance.},
+    label={lst:frag-pbr}]
+float4 frag(Varyings IN) : SV_Target {
+    Light light = GetMainLight(); // Sorgente luminosa
+    
+    // Vettori
+    float3 N = normalize(IN.normalWS);
+    float3 L = normalize(light.direction);
+    float3 V = normalize(GetCameraPositionWS() - IN.positionWS);
+    float3 H = normalize(L + V);
+
+    float NdotL = max(dot(N, L), 0.0);
+    float NdotV = max(dot(N, V), 0.0);
+
+    // Riflettanza base
+    float3 F0 = lerp(0.04, _Albedo.rgb, _Metallic);
+
+    // Termini della BRDF
+    float  D = D_GGX(N, H, _Roughness);
+    float3 F = F_Schlick(H, V, F0);
+    float  G = G_Smith(N, V, L, _Roughness);
+
+    // Componente diffusa
+    float3 kD = (1.0 - F) * (1.0 - _Metallic);
+    float3 diffuse = kD * _Albedo.rgb / PI;
+
+    // Componente speculare
+    float3 specular = (D * F * G) / (4.0 * NdotV * NdotL + 0.0001);
+
+    // Rendering equation
+    float3 color = (diffuse + specular) * light.color * NdotL;
+
+    // Approssimazione del termine ambientale
+    color += _AmbientK * _Albedo.rgb;
+
+    return float4(color, 1.0);
+}
+\end{lstlisting}
+\end{minipage}
+
+\subsection{Modello di Cook-Torrance con texture}
+\label{subsec:impl-pbr-texture}
+
+Questa variante mostra come i parametri del materiale possano variare punto per punto, leggendoli da texture anziché da valori costanti. Espone una albedo map, una metallic map, una roughness map e una normal map. Le funzioni $D$, $F$, $G$ e la struttura del fragment shader restano identiche alla versione precedente: cambiano solo la lettura dei parametri e il calcolo della normale.
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Lettura dei parametri da texture.},
+    label={lst:texture-sampling}]
+float3 albedo    = SAMPLE_TEXTURE2D(_AlbedoMap,    sampler_AlbedoMap,    IN.uv).rgb;
+float  metallic  = SAMPLE_TEXTURE2D(_MetallicMap,  sampler_MetallicMap,  IN.uv).r;
+float  roughness = SAMPLE_TEXTURE2D(_RoughnessMap, sampler_RoughnessMap, IN.uv).r;
+\end{lstlisting}
+\end{minipage}
+
+La normal map richiede un passaggio aggiuntivo. Le normali memorizzate nella texture sono espresse in un sistema di coordinate locale alla superficie (\textit{tangent space}) e devono essere trasformate in world space per essere utilizzate nei calcoli di illuminazione. Per farlo si costruisce la matrice \textbf{TBN} dai tre vettori che descrivono l'orientamento della superficie nel mondo — la tangente $\mathbf{T}$, la bitangente $\mathbf{B}$ e la normale $\mathbf{N}$, trasformati in world space dal vertex shader — e si moltiplica per essa la normale letta dalla texture:
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Applicazione della normal map.},
+    label={lst:normal-map}]
+
+// Lettura della normale dalla texture (in tangent space)
+float3 normalTS = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, IN.uv));
+
+// Matrice TBN: trasforma da tangent space a world space
+float3x3 TBN = float3x3(
+    normalize(IN.tangentWS),
+    normalize(IN.bitangentWS),
+    normalize(IN.normalWS));
+
+// Normale perturbata in world space
+float3 N = normalize(mul(normalTS, TBN));
+\end{lstlisting}
+\end{minipage}
+
+La normale $\mathbf{N}$ risultante sostituisce quella interpolata dal vertex shader, dando l'illusione di dettagli geometrici senza aggiungere geometria reale.
+
+\subsection{Toon shading}
+\label{subsec:impl-toon}
+
+Lo shader toon (\Cref{sec:toon}) produce una resa non fotorealistica quantizzando l'illuminazione di Blinn-Phong. È composto da due pass: il primo disegna il contorno, il secondo applica lo shading stilizzato. Espone il numero di fasce, la soglia speculare e i parametri del contorno.
+
+Il primo pass estrude i vertici lungo la normale e, con \texttt{Cull Front}, disegna solo le facce posteriori colorate, creando il bordo.
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Primo pass del toon shading: contorno.},
+    label={lst:toon-outline}]
+Pass {
+    Cull Front  // Nasconde le facce anteriori
+    
+    // ...
+    
+    Varyings vert(Attributes IN) {
+        Varyings OUT;
+        float3 pos = IN.positionOS.xyz + IN.normalOS * _OutlineSize;
+        OUT.positionCS = TransformObjectToHClip(pos);
+        return OUT;
+    }
+    float4 frag(Varyings IN) : SV_Target {
+        return _OutlineColor;
+    }
+}
+\end{lstlisting}
+\end{minipage}
+
+Il secondo pass quantizza la componente diffusa con \texttt{floor} e applica una soglia alla speculare.
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Secondo pass del toon shading: shading quantizzato.},
+    label={lst:toon-frag}]
+float4 frag(Varyings IN) : SV_Target {
+    Light light = GetMainLight();
+    
+    // Vettori
+    float3 N = normalize(IN.normalWS);
+    float3 L = normalize(light.direction);
+    float3 V = normalize(GetCameraPositionWS() - IN.positionWS);
+    float3 H = normalize(L + V);
+    
+    // Componente diffusa quantizzata
+    float NdotL = max(dot(N, L), 0.0);
+    float toon  = floor(NdotL * _Steps) / _Steps;
+    
+    // Componente speculare con soglia
+    float NdotH = max(dot(N, H), 0.0);
+    float spec  = NdotH > _SpecThresh ? _SpecularK : 0.0;
+    
+    // Colore finale
+    float3 color = _Color.rgb * toon + spec * light.color;
+    return float4(color, 1.0);
+}
+\end{lstlisting}
+\end{minipage}
+
+\subsection{Hologram shader}
+\label{subsec:impl-hologram}
+
+Lo shader hologram (\Cref{sec:hologram}) combina rim lighting, pattern a strisce e flicker, e introduce la trasparenza. La configurazione del pass abilita l'alpha blending, imposta la coda di rendering a \texttt{Transparent} e disabilita la scrittura nel depth buffer:
+
+\begin{minipage}{\textwidth}
+\begin{lstlisting}[style=hlsl,
+    caption={Configurazione del pass per la trasparenza.},
     label={lst:holo-blend}]
 Tags {
     "RenderPipeline"="UniversalPipeline"
@@ -1827,12 +1690,7 @@ ZWrite Off
 \end{lstlisting}
 \end{minipage}
 
-\texttt{ZWrite Off} disabilita la scrittura nel depth buffer, necessaria per evitare che le parti trasparenti dell'oggetto nascondano la geometria retrostante.
-
-\subsection{Implementazione HLSL}
-\label{subsec:impl-hologram}
-
-Il fragment shader combina i tre effetti e calcola l'opacità finale:
+Il fragment shader combina i tre effetti e calcola l'opacità finale.
 
 \begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
@@ -1841,47 +1699,27 @@ Il fragment shader combina i tre effetti e calcola l'opacità finale:
 float4 frag(Varyings IN) : SV_Target {
     float3 N = normalize(IN.normalWS);
     float3 V = normalize(GetCameraPositionWS() - IN.positionWS);
-
+    
     // Rim lighting
     float rim = pow(1.0 - max(dot(N, V), 0.0), _RimPower);
-
+    
     // Pattern a strisce
     float scan = sin(IN.positionWS.y * _ScanDensity + _Time.y * _ScanSpeed);
     scan = step(0.0, scan);
-
+    
     // Flicker
     float flicker = 0.95 + 0.05 * sin(_Time.y * _FlickerSpeed);
-
+    
     // Opacita'
     float alpha = (rim + _ScanAlpha * scan) * flicker;
     alpha = clamp(alpha, 0.1, 1.0);
-
+    
     // Colore finale
     float3 color = _Color.rgb * (rim + 0.3) * flicker;
-
     return float4(color, alpha);
 }
 \end{lstlisting}
 \end{minipage}
-
-L'opacità è data dalla somma del rim lighting e del pattern a strisce, modulata dal flicker. Il \texttt{clamp} garantisce un'opacità minima di $0.1$, evitando che l'oggetto diventi completamente invisibile.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.67\textwidth]{img/hologram/hologram.png}
-    \caption[Effetto ologramma applicato a un oggetto]{Effetto ologramma applicato a un oggetto. I bordi appaiono più luminosi e opachi, le bande orizzontali scorrono verticalmente e un leggero tremolio simula l'instabilità della proiezione.}
-    \label{fig:hologram}
-\end{figure}
-
-Gli shader descritti in questo capitolo, insieme ai modelli di illuminazione classici e al modello PBR presentati nei capitoli precedenti, sono stati integrati nel progetto dimostrativo sviluppato in Unity. Il capitolo successivo descrive la struttura del progetto, le scelte implementative adottate e le modalità con cui i diversi shader possono essere confrontati all’interno della scena.
-
-
-% ============================================================
-%  CAPITOLO 5 — PROGETTO DIMOSTRATIVO IN UNITY
-% ============================================================
-\chapter{Progetto dimostrativo in Unity} \label{chap:progetto}
-
-Per verificare nella pratica le differenze tra i modelli di illuminazione analizzati e permettere un confronto interattivo, è stato realizzato un progetto dimostrativo in Unity. L'applicazione consente di esplorare una scena in prima persona, selezionare i singoli oggetti e modificarne lo shader e i relativi parametri, osservando l'effetto delle modifiche in tempo reale.
 
 \section{Struttura della scena}
 \label{sec:scena}
