@@ -1220,7 +1220,7 @@ Tutti gli shader sono stati realizzati come shader custom per la Universal Rende
 \section{Shader implementati}
 \label{sec:shader-implementati}
 
-Sono stati implementate le tre tecniche di shading (flat, Gouraud, Phong), i tre modelli di illuminazione trattati (Phong, Blinn-Phong, Cook-Torrance), la variante di Cook-Torrance con texture e i due shader non fotorealistici (toon e hologram). La \Cref{tab:shader-riepilogo} ne riassume i parametri principali e lo scopo all'interno del confronto.
+Sono state implementate le tre tecniche di shading (flat, Gouraud, Phong shading), i tre modelli di illuminazione trattati (Phong, Blinn-Phong, Cook-Torrance), la variante di Cook-Torrance con texture e i due shader non fotorealistici (toon e hologram). La \Cref{tab:shader-riepilogo} ne riassume i parametri principali e lo scopo all'interno del confronto.
 
 \begin{table}[H]
     \centering
@@ -1318,7 +1318,7 @@ Il fragment shader è identico a quello del flat shading: restituisce il colore 
 
 \begin{minipage}{\textwidth}
 
-Nel \textbf{Phong shading} il calcolo viene spostato nel fragment shader. Il vertex shader non calcola più il colore, ma passa la normale e la posizione, che vengono interpolate dalla rasterizzazione. Il fragment shader utilizza la normale interpolata (rinormalizzata) per valutare il modello di illuminazione in ogni frammento:
+Nel \textbf{Phong shading} il calcolo dell'illuminazione viene spostato nel fragment shader. Il vertex shader non calcola più il colore, ma passa la normale e la posizione, che vengono interpolate dalla rasterizzazione. Il fragment shader utilizza la normale interpolata (rinormalizzata) per valutare il modello di illuminazione in ogni frammento:
 
 \begin{lstlisting}[style=hlsl,
     caption={Implementazione del Phong shading.},
@@ -1353,7 +1353,7 @@ Tutti gli shader presentati nel resto del capitolo utilizzano il Phong shading, 
 \subsection{Struttura comune dei modelli classici}
 \label{subsec:struttura-comune}
 
-Gli shader dei modelli classici (Phong e Blinn-Phong) condividono la stessa struttura, basata sul Phong shading: un vertex shader che trasforma posizione e normale dallo spazio oggetto allo spazio mondo, e un fragment shader che applica il modello di illuminazione per ogni frammento. La differenza tra i due risiede unicamente nel calcolo della componente speculare. I parametri del materiale vengono esposti come proprietà nel blocco \texttt{Properties}, così da poter essere regolati a runtime dal pannello descritto nella \Cref{subsec:pannello}, senza modificare il codice.
+Gli shader dei modelli di Phong e Blinn-Phong condividono la stessa struttura, basata sul Phong shading: un vertex shader che trasforma posizione e normale dallo spazio oggetto allo spazio mondo, e un fragment shader che applica il modello di illuminazione per ogni frammento. La differenza tra i due risiede unicamente nel calcolo della componente speculare. I parametri del materiale vengono esposti nelle \texttt{Properties}, così da poter essere regolati dal pannello descritto nella \Cref{subsec:pannello}.
 
 \begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
@@ -1410,12 +1410,13 @@ Shader "Custom/NomeModello" {
 \end{lstlisting}
 \end{minipage}
 
-\subsection{Modello di Phong}
-\label{subsec:impl-phong}
-Lo shader di Phong implementa il modello classico originale (\Cref{sec:phong}) e funge da riferimento di partenza nel confronto. Espone i coefficienti del modello (ambient, diffuse e specular), l'esponente di lucentezza (shininess) e il colore del materiale. Il \textit{fragment shader} traduce direttamente l'equazione~\eqref{eq:phong-complete}, calcolando il vettore di riflessione 
-$\mathbf{R}$ e la componente speculare in funzione dell'angolo tra $\mathbf{R}$ e la direzione di vista $\mathbf{V}$.
 
 \begin{minipage}{\textwidth}
+\subsection{Modello di Phong}
+\label{subsec:impl-phong}
+
+Lo shader di Phong implementa il modello classico originale (\Cref{sec:phong}) e funge da riferimento di partenza nel confronto. Espone i coefficienti del modello (ambient, diffuse e specular), l'esponente di lucentezza (shininess) e il colore del materiale. Il fragment shader traduce l'equazione~\eqref{eq:phong-complete}, calcolando il vettore di riflessione $\mathbf{R}$ e la componente speculare in funzione dell'angolo tra $\mathbf{R}$ e la direzione di vista $\mathbf{V}$.
+
 \begin{lstlisting}[style=hlsl,
     caption={Fragment shader del modello di Phong.},
     label={lst:frag-phong}]
@@ -1439,11 +1440,12 @@ float4 frag(Varyings IN) : SV_Target {
 \end{lstlisting}
 \end{minipage}
 
+\begin{minipage}{\textwidth}
 \subsection{Modello di Blinn-Phong}
 \label{subsec:impl-blinn}
-Lo shader di Blinn-Phong (\Cref{sec:blinn-phong}) differisce da quello di Phong unicamente nel calcolo della componente speculare: il vettore di riflessione $\mathbf{R}$ viene sostituito dall'halfway vector $\mathbf{H}$ e l'esponente di lucentezza viene moltiplicato per quattro per ottenere un riflesso comparabile.
 
-\begin{minipage}{\textwidth}
+Lo shader di Blinn-Phong (\Cref{sec:blinn-phong}) differisce da quello di Phong unicamente nel calcolo della componente speculare: il vettore di riflessione $\mathbf{R}$ viene sostituito dall'halfway vector $\mathbf{H}$ e la shininess viene moltiplicata per 4 per ottenere un riflesso comparabile.
+
 \begin{lstlisting}[style=hlsl,
     caption={Fragment shader del modello di Blinn-Phong.},
     label={lst:frag-blinn}]
@@ -1467,32 +1469,32 @@ float4 frag(Varyings IN) : SV_Target {
 \end{lstlisting}
 \end{minipage}
 
+\begin{minipage}{\textwidth}
 \subsection{Modello di Cook-Torrance}
 \label{subsec:impl-pbr}
 
-Lo shader PBR implementa la BRDF di Cook-Torrance (\Cref{sec:cook-torrance}) e permette di valutare una resa fisicamente plausibile, confrontabile con i modelli classici. Espone i parametri del workflow metallic/roughness: albedo, metallic, roughness e un termine ambientale. La struttura del vertex shader è identica a quella dei modelli classici.
+Lo shader PBR implementa la BRDF di Cook-Torrance (\Cref{sec:cook-torrance}) e permette di valutare una resa fisicamente plausibile. Espone i parametri del workflow metallic/roughness: albedo, metallic, roughness e un termine ambientale. La struttura del vertex shader è identica a quella dei modelli classici.
 
 I tre termini $D$, $F$ e $G$ della BRDF sono implementati come funzioni HLSL separate, richiamate nel fragment shader.
 
-\begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
     caption={Funzioni dei termini D, F e G della BRDF.},
     label={lst:pbr-dfg}]
-// D - distribuzione delle microfacce
+// D - Distribuzione delle microfacce
 float D_GGX(float3 N, float3 H, float roughness) {
-    float a  = pow(roughness, 2.0); // alpha = roughness^2
+    float a  = pow(roughness, 2.0);
     float NdotH = max(dot(N, H), 0.0);
     float denom = pow(NdotH, 2.0) * (pow(a, 2.0) - 1.0) + 1.0;
     return pow(a, 2.0) / (PI * pow(denom, 2.0));
 }
 
-// F - effetto Fresnel
+// F - Effetto Fresnel
 float3 F_Schlick(float3 H, float3 V, float3 F0) {
     float HdotV = max(dot(H, V), 0.0);
     return F0 + (1.0 - F0) * pow(1.0 - HdotV, 5.0);
 }
 
-// G - auto-ombreggiatura
+// G - Auto-ombreggiatura
 float G1_SchlickGGX(float3 N, float3 X, float roughness) {
     float NdotX = max(dot(N, X), 0.0);
     float k = pow(roughness + 1.0, 2.0) / 8.0;
@@ -1550,12 +1552,12 @@ float4 frag(Varyings IN) : SV_Target {
 \end{lstlisting}
 \end{minipage}
 
+\begin{minipage}{\textwidth}
 \subsection{Modello di Cook-Torrance con texture}
 \label{subsec:impl-pbr-texture}
 
-Questa variante mostra come i parametri del materiale possano variare punto per punto, leggendoli da texture anziché da valori costanti. Espone una albedo map, una metallic map, una roughness map e una normal map. Le funzioni $D$, $F$, $G$ e la struttura del fragment shader restano identiche alla versione precedente: cambiano solo la lettura dei parametri e il calcolo della normale.
+Questa variante del modello di Cook-Torrance mostra come i parametri del materiale possano variare punto per punto, leggendoli da texture anziché da valori costanti. Espone una albedo map, una metallic map, una roughness map e una normal map. Le funzioni $D$, $F$, $G$ e la struttura del fragment shader restano identiche alla versione precedente: cambiano solo la lettura dei parametri e il calcolo della normale.
 
-\begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
     caption={Lettura dei parametri da texture.},
     label={lst:texture-sampling}]
@@ -1563,16 +1565,15 @@ float3 albedo    = SAMPLE_TEXTURE2D(_AlbedoMap,    sampler_AlbedoMap,    IN.uv).
 float  metallic  = SAMPLE_TEXTURE2D(_MetallicMap,  sampler_MetallicMap,  IN.uv).r;
 float  roughness = SAMPLE_TEXTURE2D(_RoughnessMap, sampler_RoughnessMap, IN.uv).r;
 \end{lstlisting}
-\end{minipage}
 
-La normal map richiede un passaggio aggiuntivo. Le normali memorizzate nella texture sono espresse in un sistema di coordinate locale alla superficie (\textit{tangent space}) e devono essere trasformate in world space per essere utilizzate nei calcoli di illuminazione. Per farlo si costruisce la matrice \textbf{TBN} dai tre vettori che descrivono l'orientamento della superficie nel mondo — la tangente $\mathbf{T}$, la bitangente $\mathbf{B}$ e la normale $\mathbf{N}$, trasformati in world space dal vertex shader — e si moltiplica per essa la normale letta dalla texture:
+La normal map richiede un passaggio aggiuntivo. Le normali memorizzate nella texture sono espresse in un sistema di coordinate locale alla superficie (\textit{tangent space}) e devono essere trasformate in world space per essere utilizzate nei calcoli di illuminazione. Per farlo si costruisce la matrice \textbf{TBN} dai tre vettori che descrivono l'orientamento della superficie nel mondo (la tangente $\mathbf{T}$, la bitangente $\mathbf{B}$ e la normale $\mathbf{N}$, trasformati in world space dal vertex shader) e si moltiplica la normale letta dalla texture per tale matrice, ottenendo una normale espressa nel sistema di riferimento globale:
 
-\begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
     caption={Applicazione della normal map.},
     label={lst:normal-map}]
 // Lettura della normale dalla texture (in tangent space)
-float3 normalTS = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, IN.uv));
+float3 normalTS
+        = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, IN.uv));
 
 // Matrice TBN: trasforma da tangent space a world space
 float3x3 TBN = float3x3(
@@ -1583,16 +1584,17 @@ float3x3 TBN = float3x3(
 // Normale perturbata in world space
 float3 N = normalize(mul(normalTS, TBN));
 \end{lstlisting}
-\end{minipage}
 
 La normale $\mathbf{N}$ risultante sostituisce quella interpolata dal vertex shader, dando l'illusione di dettagli geometrici senza aggiungere geometria reale.
+
+\end{minipage}
+
+\begin{minipage}{\textwidth}
 
 \subsection{Toon shading}
 \label{subsec:impl-toon}
 
 Lo shader toon (\Cref{sec:toon}) produce una resa non fotorealistica quantizzando l'illuminazione di Blinn-Phong. È composto da due pass: il primo disegna il contorno, il secondo applica lo shading stilizzato. Espone il numero di fasce, la soglia speculare e i parametri del contorno.
-
-\begin{minipage}{\textwidth}
 
 Il primo pass estrude i vertici lungo la normale e, con \texttt{Cull Front}, disegna solo le facce posteriori colorate, creando il bordo.
 
@@ -1615,9 +1617,6 @@ Pass {
     }
 }
 \end{lstlisting}
-\end{minipage}
-
-\begin{minipage}{\textwidth}
 
 Il secondo pass quantizza la componente diffusa con \texttt{floor} e applica una soglia alla speculare.
 
@@ -1625,13 +1624,7 @@ Il secondo pass quantizza la componente diffusa con \texttt{floor} e applica una
     caption={Secondo pass del toon shading: shading quantizzato.},
     label={lst:toon-frag}]
 float4 frag(Varyings IN) : SV_Target {
-    Light light = GetMainLight();
-    
-    // Vettori
-    float3 N = normalize(IN.normalWS);
-    float3 L = normalize(light.direction);
-    float3 V = normalize(GetCameraPositionWS() - IN.positionWS);
-    float3 H = normalize(L + V);
+    // ... vettori N, L, V, H (identici al modello di Blinn-Phong)
     
     // Componente diffusa quantizzata
     float NdotL = max(dot(N, L), 0.0);
@@ -1648,12 +1641,13 @@ float4 frag(Varyings IN) : SV_Target {
 \end{lstlisting}
 \end{minipage}
 
+\begin{minipage}{\textwidth}
+
 \subsection{Hologram shader}
 \label{subsec:impl-hologram}
 
 Lo shader hologram (\Cref{sec:hologram}) combina rim lighting, pattern a strisce e flicker, e introduce la trasparenza. La configurazione del pass abilita l'alpha blending, imposta la coda di rendering a \texttt{Transparent} e disabilita la scrittura nel depth buffer:
 
-\begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
     caption={Configurazione del pass per la trasparenza.},
     label={lst:holo-blend}]
@@ -1665,9 +1659,6 @@ Tags {
 Blend SrcAlpha OneMinusSrcAlpha
 ZWrite Off
 \end{lstlisting}
-\end{minipage}
-
-\begin{minipage}{\textwidth}
 
 Il fragment shader combina i tre effetti e calcola l'opacità finale.
 
@@ -1699,17 +1690,20 @@ float4 frag(Varyings IN) : SV_Target {
 \end{lstlisting}
 \end{minipage}
 
+\newpage
+
 \section{Integrazione nel progetto Unity}
 \label{sec:progetto}
 
-Gli shader descritti nella sezione precedente sono stati integrati in un progetto Unity organizzato in più scene: una scena principale interattiva, in cui esplorare i materiali e regolarne i parametri a runtime, e un insieme di scene di test dedicate al confronto sistematico tra i modelli. Le scene sono descritte nella \Cref{sec:scene-test}; questa sezione si concentra sugli script che ne governano il funzionamento: la navigazione in prima persona, la selezione degli oggetti, il pannello di controllo e il cambio di scena.
+Gli shader descritti nella sezione precedente sono stati integrati in un progetto Unity organizzato in più scene: una scena principale interattiva, in cui esplorare i materiali e regolarne i parametri a runtime, e un insieme di scene di test dedicate al confronto sistematico tra i modelli. Le scene sono descritte nella \Cref{sec:scene-test}; questa sezione si concentra sugli script che ne gestiscono il funzionamento: la navigazione in prima persona, la selezione degli oggetti, il pannello di controllo e il cambio di scena.
+
+\begin{minipage}{\textwidth}
 
 \subsection{Navigazione in prima persona}
 \label{subsec:navigazione}
 
-La navigazione avviene in prima persona: il movimento è controllato dai tasti WASD e l'orientamento della visuale dal mouse. Il controllo è implementato nello script \texttt{FirstPersonCamera}, applicato alla camera. La rotazione verticale (\textit{pitch}) viene applicata alla camera e limitata a $\pm 90^\circ$ per evitare ribaltamenti, mentre la rotazione orizzontale (\textit{yaw}) viene applicata all'oggetto genitore che la contiene. Il movimento utilizza un componente \texttt{CharacterController}, che gestisce automaticamente le collisioni con la geometria della scena.
+La navigazione avviene in prima persona: il movimento è controllato dai tasti WASD e l'orientamento della visuale dal mouse. Il controllo è implementato nello script \texttt{FirstPersonCamera}, applicato alla camera. La rotazione verticale (\textit{pitch}) viene applicata alla camera e limitata a $\pm 90^\circ$ per evitare ribaltamenti, mentre la rotazione orizzontale (\textit{yaw}) viene applicata all'oggetto che la contiene. Il movimento utilizza un componente \texttt{CharacterController}, che gestisce automaticamente le collisioni con la geometria della scena.
 
-\begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
     caption={Logica di movimento e rotazione della camera.},
     label={lst:camera}]
@@ -1728,14 +1722,15 @@ controller.Move(move * moveSpeed * Time.deltaTime);
 \end{lstlisting}
 \end{minipage}
 
+\begin{minipage}{\textwidth}
+
 \subsection{Selezione degli oggetti}
 \label{subsec:selezione}
 
-Ogni oggetto modificabile è dotato dello script \texttt{SelectableObject}, che ne definisce il nome e l'insieme di materiali disponibili. All'avvio lo script crea una copia (\textit{instance}) di ciascun materiale, in modo che le modifiche apportate a runtime siano indipendenti per ogni oggetto e non alterino i materiali originali del progetto. Il primo materiale dell'elenco viene applicato come predefinito.
+Ogni oggetto modificabile è dotato dello script \texttt{SelectableObject}, che ne definisce il nome e l'insieme di materiali disponibili. All'avvio lo script crea una copia di ciascun materiale, in modo che le modifiche apportate a runtime siano indipendenti per ogni oggetto e non alterino i materiali originali del progetto. Il primo materiale dell'elenco viene applicato come predefinito.
 
 Poiché i modelli importati possono essere composti da più mesh annidate, lo script raccoglie tutti i \texttt{Renderer} presenti nell'oggetto e nei suoi figli, applicando il materiale a ciascuno di essi.
 
-\begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
     caption={Creazione delle istanze dei materiali e applicazione.},
     label={lst:selectable}]
@@ -1756,11 +1751,9 @@ public void ApplyMaterial(Material mat) {
         r.material = mat;
 }
 \end{lstlisting}
-\end{minipage}
 
 La selezione avviene tramite \textit{raycasting}: al click del mouse viene lanciato un raggio dal centro dello schermo, e il primo oggetto colpito dotato di \texttt{SelectableObject} viene selezionato. Un mirino al centro dello schermo indica il punto di mira.
 
-\begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
     caption={Selezione di un oggetto tramite raycast.},
     label={lst:raycast}]
@@ -1769,9 +1762,8 @@ Ray ray = Camera.main.ScreenPointToRay(
 RaycastHit hit;
 if (Physics.Raycast(ray, out hit, selectDistance)) {
     var obj = hit.collider.GetComponentInParent<SelectableObject>();
-    if (obj != null) {
+    if (obj != null)
         selected = obj; // apertura del pannello
-    }
 }
 \end{lstlisting}
 \end{minipage}
@@ -1801,17 +1793,18 @@ In questo modo lo stesso pannello si adatta automaticamente a qualsiasi shader: 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.45\textwidth]{img/project/shader_panel.jpeg}
+    \includegraphics[width=0.6\textwidth]{img/project/shader_panel.jpeg}
     \caption[Il pannello di controllo]{Il pannello di controllo aperto su un oggetto selezionato, con i controlli generati in base allo shader corrente.}
     \label{fig:pannello}
 \end{figure}
+
+\begin{minipage}{\textwidth}
 
 \subsection{Cambio di scena}
 \label{subsec:scene-switch}
 
 Per passare rapidamente da una scena all'altra durante l'esecuzione, senza tornare all'editor, è stato realizzato lo script \texttt{SceneSwitcher}, che associa a ciascun tasto numerico il caricamento della scena corrispondente tramite \texttt{SceneManager}:
 
-\begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
     caption={Cambio di scena tramite i tasti numerici.},
     label={lst:scene-switch}]
@@ -1824,9 +1817,10 @@ void Update() {
     if (Input.GetKeyDown(KeyCode.Alpha6)) SceneManager.LoadScene(5);
 }
 \end{lstlisting}
-\end{minipage}
 
 Lo script è presente in tutte le scene, così che il passaggio sia sempre disponibile. Le scene devono essere registrate nell'ordine corrispondente nelle impostazioni di build di Unity.
+
+\end{minipage}
 
 \section{Scene di test}
 \label{sec:scene-test}
@@ -1838,7 +1832,7 @@ Oltre alla scena principale interattiva, sono state realizzate alcune scene di t
 
 È la scena principale del progetto: un ambiente esplorabile in cui l'utente si muove in prima persona, seleziona un oggetto inquadrandolo e ne modifica shader e parametri osservando l'effetto in tempo reale.
 
-L'illuminazione è affidata a un'unica luce direzionale. La scelta di una sola sorgente è deliberata: avere una luce sola, di cui si controllano direzione, intensità e colore, permette di isolare il comportamento di ciascun modello senza che contributi multipli si sovrappongano, rendendo il confronto più leggibile. La luce direzionale, inoltre, modella una sorgente infinitamente lontana con raggi paralleli, l'approssimazione più adatta allo studio dei modelli trattati. La scena è completata da uno skybox e da un piano che funge da pavimento.
+L'illuminazione è affidata a un'unica luce direzionale. Limitarsi a una sola sorgente, di cui si controllano direzione, intensità e colore, permette di isolare il comportamento di ciascun modello senza che contributi multipli si sovrappongano, rendendo il confronto più leggibile.
 
 Gli oggetti selezionabili sono organizzati in modo che ciascuno parta con un materiale predefinito coerente con la sua natura, ma possa essere riconfigurato con uno qualsiasi degli shader implementati.
 
@@ -1864,16 +1858,16 @@ Questa scena dispone una fila di sfere identiche, ciascuna con uno degli shader 
 \subsection{Scena del riflesso speculare troncato}
 \label{subsec:scena-cutoff}
 
-Questa scena è dedicata al confronto tra Phong e Blinn-Phong in presenza del riflesso speculare troncato (\Cref{subsec:half-vector}). Contiene sfere e piani illuminati da una luce radente, quasi parallela alla superficie, con un valore di shininess molto basso: in queste condizioni il taglio netto del riflesso di Phong diventa evidente, mentre Blinn-Phong mantiene una transizione continua. Il piano, in particolare, rende il fenomeno più leggibile rispetto alla sola sfera. L'analisi dei risultati è riportata nella \Cref{sec:confronto-visivo}.
+Questa scena è dedicata al confronto tra Phong e Blinn-Phong in presenza del riflesso speculare troncato (\Cref{subsec:half-vector}). Contiene sfere e piani illuminati da una luce radente, quasi parallela alla superficie, con un valore di shininess molto basso: in queste condizioni il taglio netto del riflesso di Phong diventa evidente, mentre Blinn-Phong mantiene una transizione continua. L'analisi dei risultati è riportata nella \Cref{sec:confronto-visivo}.
 
 \subsection{Scena di confronto Blinn-Phong / Cook-Torrance}
 \label{subsec:scena-blinn-pbr}
 
-Questa scena confronta il modello empirico di Blinn-Phong con il modello fisicamente plausibile di Cook-Torrance, su sfere identiche e sotto la stessa illuminazione. Sono previste due configurazioni, pensate per evidenziare due differenze distinte:
+Questa scena confronta il modello empirico di Blinn-Phong con il modello di Cook-Torrance, su sfere identiche e sotto la stessa illuminazione. Sono previste due configurazioni, pensate per evidenziare due differenze distinte:
 
 \begin{itemize}
-    \item un \textbf{materiale metallico} (oro): mette in luce come Blinn-Phong produca un riflesso speculare bianco, mentre Cook-Torrance lo colori in base all'albedo del metallo;
-    \item un \textbf{materiale con rugosità elevata}: evidenzia lo scurimento dei bordi prodotto dal termine $G$ del PBR, assente in Blinn-Phong.
+    \item un materiale metallico: mette in luce come Blinn-Phong produca un riflesso speculare bianco, mentre Cook-Torrance lo colori in base all'albedo del metallo;
+    \item un materiale con rugosità elevata: evidenzia lo scurimento dei bordi prodotto dal termine $G$ del PBR, assente in Blinn-Phong.
 \end{itemize}
 
 I risultati e il relativo commento sono riportati nella \Cref{sec:confronto-visivo}.
@@ -1881,7 +1875,7 @@ I risultati e il relativo commento sono riportati nella \Cref{sec:confronto-visi
 \subsection{Scena di confronto metallic/roughness}
 \label{subsec:scena-griglia}
 
-Questa scena dispone una griglia di sfere identiche con shader Cook-Torrance, in cui il parametro metallic varia lungo un asse e la roughness lungo l'altro. Permette di osservare in un'unica immagine come i due parametri governino l'aspetto del materiale, dalla superficie dielettrica e liscia a quella metallica e rugosa.
+Questa scena dispone una griglia di sfere identiche con shader Cook-Torrance, in cui il parametro metallic varia lungo un asse e la roughness lungo l'altro. Permette di osservare in un'unica immagine come i due parametri modifichino l'aspetto del materiale.
 
 Per evitare di configurare manualmente le decine di sfere della griglia, queste vengono generate a runtime da uno script che ne imposta i parametri in base alla posizione:
 
@@ -1906,7 +1900,7 @@ Il risultato e il commento sono riportati nella \Cref{sec:confronto-visivo}.
 \subsection{Scena dei materiali con texture}
 \label{subsec:scena-texture}
 
-Questa scena raccoglie alcune sfere con shader Cook-Torrance configurate con set di texture diversi (albedo, metallic, roughness e normal map), corrispondenti a materiali reali come legno, metallo e pietra. A differenza delle altre scene, in cui i parametri sono costanti e variano solo tra una sfera e l'altra, qui ogni sfera mostra la variazione locale dei parametri sulla propria superficie, resa possibile dalle texture. La scena serve a evidenziare il contributo delle texture map alla resa di materiali complessi.
+Questa scena raccoglie alcune sfere con shader Cook-Torrance configurate con set di texture diversi (albedo, metallic, roughness e normal map), corrispondenti a materiali reali come legno, metallo e pietra. A differenza delle altre scene, in cui i parametri sono costanti e variano solo tra una sfera e l'altra, qui ogni sfera mostra la variazione locale dei parametri sulla propria superficie, resa possibile dalle texture. La scena serve a evidenziare il contributo delle texture map alla resa di materiali complessi. Il risultato è riportato nella \Cref{subsec:conf-texture}.
 
 \section{Confronto visivo}
 \label{sec:confronto-visivo}
@@ -1958,6 +1952,8 @@ La differenza diventa invece netta in presenza di luce radente e shininess bassa
     \label{fig:conf-cutoff}
 \end{figure}
 
+\begin{minipage}{\textwidth}
+
 \subsection{Blinn-Phong e Cook-Torrance}
 \label{subsec:conf-blinn-pbr}
 
@@ -1982,6 +1978,10 @@ Il confronto tra Blinn-Phong e Cook-Torrance evidenzia il passaggio da un modell
     \label{fig:conf-oro}
 \end{figure}
 
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+
 Una seconda differenza emerge con materiali rugosi. Il termine $G$ di Cook-Torrance modella l'auto-ombreggiatura tra le microfacce (\Cref{subsec:geometry}), attenuando la luce nelle zone osservate o illuminate ad angoli radenti. Il risultato è uno scurimento dei bordi che aumenta con la rugosità, assente in Blinn-Phong, dove la superficie appare uniformemente illuminata.
 
 \begin{figure}[H]
@@ -2003,12 +2003,16 @@ Una seconda differenza emerge con materiali rugosi. Il termine $G$ di Cook-Torra
     \label{fig:conf-rough}
 \end{figure}
 
-Al di là delle singole differenze, il vantaggio principale di Cook-Torrance è la coerenza: grazie alla conservazione dell'energia e ai parametri fisicamente interpretabili, un materiale configurato una volta appare convincente sotto qualsiasi illuminazione, senza bisogno di regolazioni manuali. In Blinn-Phong, invece, i coefficienti vanno spesso ritarati al variare delle condizioni di luce per ottenere un risultato plausibile.
+\end{minipage}
+
+Al di là delle singole differenze, il vantaggio principale di Cook-Torrance è la coerenza: grazie alla conservazione dell'energia e ai parametri fisicamente interpretabili, un materiale configurato una volta appare convincente sotto qualsiasi illuminazione, senza bisogno di regolazioni manuali. In Blinn-Phong, invece, i coefficienti vanno spesso ritarati al variare delle condizioni di luce per ottenere un risultato accurato.
+
+\begin{minipage}{\textwidth}
 
 \subsection{Variazione di metallic e roughness}
 \label{subsec:conf-griglia}
 
-La griglia di sfere generata nella scena dedicata mostra l'effetto combinato dei due parametri del workflow metallic/roughness. Lungo l'asse del metallic, all'aumentare del valore la componente diffusa scompare progressivamente e il riflesso speculare assume il colore dell'albedo: la sfera passa da un aspetto plastico a uno metallico. Lungo l'asse della roughness, all'aumentare del valore il riflesso si allarga e perde intensità, passando da una superficie a specchio a una opaca.
+La griglia di sfere generata nella scena dedicata mostra l'effetto combinato dei due parametri del workflow metallic/roughness. Lungo l'asse del metallic, all'aumentare del valore la componente diffusa scompare progressivamente e il riflesso speculare assume il colore del materiale: la sfera passa da un aspetto plastico a uno metallico. Lungo l'asse della roughness, all'aumentare del valore il riflesso si allarga e perde intensità, passando da una superficie a specchio a una opaca.
 
 \begin{figure}[H]
     \centering
@@ -2016,6 +2020,10 @@ La griglia di sfere generata nella scena dedicata mostra l'effetto combinato dei
     \caption[Griglia metallic/roughness]{Griglia di sfere Cook-Torrance: il metallic cresce da sinistra a destra, la roughness dal basso verso l'alto.}
     \label{fig:conf-griglia}
 \end{figure}
+
+\end{minipage}
+
+\begin{minipage}{\textwidth}
 
 \subsection{Effetto delle texture}
 \label{subsec:conf-texture}
@@ -2041,6 +2049,8 @@ L'uso delle texture non modifica il modello di illuminazione, ma permette di var
     \label{fig:conf-texture}
 \end{figure}
 
+\end{minipage}
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{img/project/screenshot/texture.jpg}
@@ -2053,10 +2063,12 @@ L'uso delle texture non modifica il modello di illuminazione, ma permette di var
 
 Toon e hologram non hanno l'obiettivo di simulare la realtà, ma di mostrare la flessibilità della pipeline programmabile. Il toon shading, pur basandosi sull'illuminazione di Blinn-Phong, ne quantizza il risultato in fasce nette, producendo un aspetto da disegno animato lontano dal fotorealismo dei modelli precedenti. L'effetto ologramma combina invece rim lighting, trasparenza e animazione temporale per ottenere un risultato puramente stilistico, non riconducibile ad alcun modello fisico. Entrambi dimostrano che la pipeline non è vincolata alla resa realistica: lo stesso meccanismo usato per Phong, Blinn-Phong e Cook-Torrance può produrre qualsiasi modello di resa definito dallo sviluppatore.
 
+\newpage
+
 \section{Considerazioni sul costo computazionale}
 \label{sec:costo}
 
-Trattandosi di rendering in tempo reale, è opportuno considerare anche il costo computazionale dei diversi shader. Va premesso che, su hardware moderno e per scene semplici come quelle realizzate, le differenze di prestazioni tra i modelli sono trascurabili: il calcolo dell'illuminazione viene eseguito in parallelo dalla GPU per ogni frammento, e la complessità aggiuntiva dei modelli più elaborati incide in modo marginale sul tempo di rendering complessivo. Per questo motivo si propone una valutazione qualitativa del costo relativo, anziché una misurazione numerica che, in queste condizioni, risulterebbe poco significativa.
+Trattandosi di rendering in tempo reale, è opportuno considerare anche il costo computazionale dei diversi shader. Va premesso che, su hardware moderno e per scene semplici, le differenze di prestazioni tra i modelli sono trascurabili: il calcolo dell'illuminazione viene eseguito in parallelo dalla GPU per ogni frammento, e la complessità aggiuntiva dei modelli più elaborati incide in modo marginale sul tempo di rendering complessivo. Per questo motivo viene inserita una valutazione qualitativa del costo relativo, anziché una misurazione numerica che, in queste condizioni, risulterebbe poco significativa.
 
 La \Cref{tab:costo} riassume il costo relativo di ciascuno shader e la sua motivazione, in termini di operazioni svolte nel fragment shader.
 
@@ -2089,7 +2101,7 @@ In sintesi, i modelli classici sono i più economici, il PBR ha un costo interme
 \section{Limiti dell'implementazione}
 \label{sec:limiti-impl}
 
-L'implementazione realizzata è volutamente semplificata, per concentrare l'attenzione sui modelli di illuminazione e mantenere il codice leggibile. Presenta quindi alcuni limiti, che è opportuno esplicitare.
+L'implementazione realizzata è volutamente semplificata, per concentrare l'attenzione sui modelli di illuminazione e mantenere il codice leggibile. Presenta quindi alcuni limiti.
 
 Il principale riguarda la gestione della luce. Tutti gli shader considerano un'unica sorgente direzionale, ottenuta tramite \texttt{GetMainLight}: non è previsto il supporto a sorgenti multiple, né a luci puntuali o spot, che richiederebbero un ciclo sui contributi di ciascuna sorgente. Questa scelta semplifica il confronto, ma limita gli shader a scene con una sola luce.
 
