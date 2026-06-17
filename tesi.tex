@@ -298,7 +298,7 @@ Nel progetto sviluppato in questa tesi è stata adottata URP: poiché l’obiett
 \section{Il linguaggio HLSL e ShaderLab}
 \label{sec:hlsl}
 
-Gli shader in Unity vengono scritti in file con estensione \texttt{.shader} che utilizzano ShaderLab, un linguaggio proprietario che descrive la struttura generale dello shader, le sue proprietà e i pass di rendering. All’interno di questa struttura viene inserito il codice HLSL, responsabile dell’implementazione della logica del vertex shader e del fragment shader
+Gli shader in Unity vengono scritti in file con estensione \texttt{.shader} che utilizzano ShaderLab, un linguaggio proprietario che descrive la struttura generale dello shader, le sue proprietà e i pass di rendering. All’interno di questa struttura viene inserito il codice HLSL, responsabile dell’implementazione della logica del vertex shader e del fragment shader.
 
 Uno shader Unity è organizzato nei seguenti blocchi: \textbf{Properties}, che espone i parametri configurabili del materiale dell'inspector di Unity; \textbf{Shader}, il blocco esterno identificato da un nome; uno o più \textbf{SubShader}, ciascuno pensato per una specifica piattaforma; uno o più \textbf{Pass}, che rappresentano singole esecuzioni della pipeline, ognuna con il proprio \textit{vertex} e \textit{fragment shader}.
 
@@ -443,7 +443,7 @@ Esistono diverse tipologie di sorgenti luminose (direzionali, puntuali e spot) c
 \section{Il modello di Phong}
 \label{sec:phong}
 
-Il modello di illuminazione di Phong, è un modello di illuminazione locale proposto da Bui Tuong Phong nel 1975~\cite{phong1975}, è uno dei primi modelli empirici per la sintesi di immagini tridimensionali. Pur non essendo fisicamente accurato, produce risultati visivamente convincenti a costo computazionale contenuto, ed è rimasto a lungo il riferimento principale nella grafica in tempo reale.
+Il modello di Phong, proposto da Bui Tuong Phong nel 1975~\cite{phong1975}, è un modello di illuminazione locale ed è uno dei primi modelli empirici per la sintesi di immagini tridimensionali. Pur non essendo fisicamente accurato, produce risultati visivamente convincenti a costo computazionale contenuto, ed è rimasto a lungo il riferimento principale nella grafica in tempo reale.
 
 Il modello si basa sulla decomposizione della luce riflessa nelle tre componenti introdotte nella \cref{subsec:componenti-riflessione}: ambientale, diffusa e speculare.
 
@@ -512,7 +512,7 @@ Nonostante la sua semplicità ed efficacia, il modello di Phong presenta alcuni 
 \begin{itemize}
     \item \textbf{Non conserva l'energia}: nessun vincolo impedisce che la somma dei coefficienti $k_a + k_d + k_s$ superi 1, producendo più luce riflessa di quella incidente.
     \item \textbf{Il modello è empirico}: le tre componenti non derivano da principi fisici ma da un'osservazione qualitativa del comportamento della luce. Il risultato è visivamente plausibile ma non fisicamente corretto.
-    \item \textbf{Riflesso speculare troncato}: quando l'angolo tra $\mathbf{R}$ e $\mathbf{V}$ supera i 90°, il prodotto scalare diventa negativo e viene annullato (poiché limitato a zero). In alcuni casi questo produce un taglio netto del riflesso speculare (\cref{fig:cutoff-confronto}).
+    \item \textbf{Riflesso speculare troncato}: quando l'angolo tra $\mathbf{R}$ e $\mathbf{V}$ supera i 90°, il prodotto scalare diventa negativo e viene annullato (poiché limitato a zero). In alcuni casi questo produce un taglio netto del riflesso speculare (\cref{fig:conf-cutoff}).
 \end{itemize}
 
 L'ultimo di questi limiti è uno dei motivi principali dell'introduzione del modello di Blinn-Phong.
@@ -1006,10 +1006,10 @@ Le texture fungono quindi da semplice contenitore per i dati: il modello matemat
 \begin{figure}[H]
     \centering
     \begin{tabular}{cccc}
-        \includegraphics[width=0.22\textwidth]{img/pbr/textures/albedo.jpg} &
-        \includegraphics[width=0.22\textwidth]{img/pbr/textures/metallic.jpg} &
-        \includegraphics[width=0.22\textwidth]{img/pbr/textures/roughness.jpg} &
-        \includegraphics[width=0.22\textwidth]{img/pbr/textures/normal.jpg} \\[4pt]
+        \includegraphics[width=0.22\textwidth]{img/pbr/textures/albedo.jpeg} &
+        \includegraphics[width=0.22\textwidth]{img/pbr/textures/metallic.jpeg} &
+        \includegraphics[width=0.22\textwidth]{img/pbr/textures/roughness.jpeg} &
+        \includegraphics[width=0.22\textwidth]{img/pbr/textures/normal.jpeg} \\[4pt]
         Albedo & Metallic & Roughness & Normal
     \end{tabular}
 
@@ -1030,7 +1030,7 @@ I modelli di illuminazione presentati finora considerano esclusivamente il contr
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{img/pbr/indirect-lighting.jpeg}
-    \caption[Confronto tra luce diretta e indiretta]{Confronto tra luce diretta e luce indiretta: la luce diretta raggiunge la superficie direttamente dalla sorgente, mentre la luce indiretta è il risultato dei rimbalzi successivi sulle superfici circostanti.}
+    \caption[Luce diretta e indiretta]{Luce diretta e luce indiretta: la luce diretta raggiunge la superficie direttamente dalla sorgente, mentre la luce indiretta è il risultato dei rimbalzi successivi sulle superfici circostanti.}
     \label{fig:indirect-lighting}
 \end{figure}
 
@@ -1124,32 +1124,6 @@ Per completare l'effetto fumetto, è possibile aggiungere un contorno nero attor
     \end{subfigure}
     \caption[I due pass del toon shading]{I due pass del toon shading e il risultato della loro combinazione.}
     \label{fig:toon-pass}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/toon/2.png}
-        \caption{2 fasce}
-        \label{fig:toon-2}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/toon/4.png}
-        \caption{4 fasce}
-        \label{fig:toon-4}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/toon/8.png}
-        \caption{8 fasce}
-        \label{fig:toon-8}
-    \end{subfigure}
-    \caption[Effetto del numero di fasce nel toon shading]{Effetto del numero di fasce nel toon shading. Con poche fasce l'aspetto è più stilizzato, con più fasce la transizione è più graduale.}
-    \label{fig:toon-steps}
 \end{figure}
 
 \section{Hologram shader}
@@ -1964,8 +1938,27 @@ La differenza diventa invece netta in presenza di luce radente e shininess bassa
         \caption{Blinn-Phong}
         \label{fig:conf-cutoff-blinn}
     \end{subfigure}
-    \caption[Riflesso speculare troncato]{Riflesso speculare su una sfera con shininess molto bassa. In Phong il riflesso presenta un taglio netto, assente in Blinn-Phong.}
+    \caption[Riflesso speculare troncato su una sfera]{Riflesso speculare su una sfera con shininess molto bassa. In Phong il riflesso presenta un taglio netto, assente in Blinn-Phong.}
     \label{fig:conf-cutoff}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/cutoff/phong-piano.jpg}
+        \caption{Phong}
+        \label{fig:conf-cutoff-piano-phong}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/cutoff/blinnphong-piano.jpg}
+        \caption{Blinn-Phong}
+        \label{fig:conf-cutoff-piano-blinn}
+    \end{subfigure}
+    \caption[Riflesso speculare troncato su un piano]{Lo stesso confronto su un piano, visto dall'alto con la sorgente luminosa alle spalle dell'osservatore. Il taglio netto del riflesso di Phong è ancora più evidente che sulla sfera.}
+    \label{fig:conf-cutoff-piano}
 \end{figure}
 
 \begin{minipage}{\textwidth}
