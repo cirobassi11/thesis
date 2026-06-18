@@ -206,7 +206,7 @@ La tesi è così strutturata:
 % ============================================================
 \chapter{La pipeline di rendering} \label{chap:pipeline}
 
-La computer graphics ha come obiettivo principale la generazione di immagini a partire da una descrizione matematica di una scena tridimensionale. Tale descrizione, costituita da geometrie, materiali, luci e parametri della camera, viene trasformata progressivamente in un’immagine bidimensionale destinata alla visualizzazione su schermo. L’insieme delle fasi che realizzano questa trasformazione prende il nome di \textit{pipeline di rendering}. Nelle architetture moderne, gran parte di tale processo è implementata direttamente in hardware dalle GPU (\textit{Graphics Processing Unit}), che eseguono in modo altamente parallelo le operazioni necessarie alla produzione dei pixel finali.
+La computer graphics ha come obiettivo principale la generazione di immagini a partire da una descrizione matematica di una scena tridimensionale. Tale descrizione, costituita da geometrie, materiali, luci e parametri della camera, viene trasformata progressivamente in un'immagine bidimensionale destinata alla visualizzazione su schermo. L'insieme delle fasi che realizzano questa trasformazione prende il nome di \textit{pipeline di rendering}. Nelle architetture moderne, gran parte di tale processo è implementata direttamente in hardware dalle GPU (\textit{Graphics Processing Unit}), che eseguono in modo altamente parallelo le operazioni necessarie alla produzione dei pixel finali.
 
 Questo capitolo introduce la struttura generale della pipeline grafica programmabile, descrivendo i suoi stadi principali e il loro ruolo nel processo di rendering.
 
@@ -238,10 +238,10 @@ Di seguito vengono descritti i principali stadi della pipeline. Tra questi, il v
 Il \textit{vertex shader} è il primo stadio programmabile della pipeline. Viene eseguito una volta per ogni vertice della geometria inviata alla GPU e ha come compito principale quello di trasformarne le coordinate attraverso una serie di spazi di riferimento, fino a ottenere la posizione finale utilizzata nelle fasi successive della pipeline:
 
 \begin{enumerate}
-    \item \textbf{Object space}: rappresenta lo spazio locale del modello 3D. In questo sistema di riferimento, le coordinate del vertice sono definite rispetto all’origine e all’orientamento dell’oggetto stesso.
-    \item \textbf{World space}: rappresenta lo spazio globale della scena. Le coordinate del vertice vengono trasformate in base alla posizione, alla rotazione e alla scala dell’oggetto, mediante la matrice di modello $\mathbf{M}$.
-    \item \textbf{View space}: rappresenta lo spazio della camera. Le coordinate sono espresse rispetto al punto di vista dell’osservatore, mediante la matrice di vista $\mathbf{V}$.
-    \item \textbf{Clip space}: rappresenta lo spazio ottenuto dopo l’applicazione della proiezione. Le coordinate vengono trasformate mediante la matrice di proiezione $\mathbf{P}$, preparando la geometria alle successive fasi di clipping, divisione prospettica e rasterizzazione.
+    \item \textbf{Object space}: rappresenta lo spazio locale del modello 3D. In questo sistema di riferimento, le coordinate del vertice sono definite rispetto all'origine e all'orientamento dell'oggetto stesso.
+    \item \textbf{World space}: rappresenta lo spazio globale della scena. Le coordinate del vertice vengono trasformate in base alla posizione, alla rotazione e alla scala dell'oggetto, mediante la matrice di modello $\mathbf{M}$.
+    \item \textbf{View space}: rappresenta lo spazio della camera. Le coordinate sono espresse rispetto al punto di vista dell'osservatore, mediante la matrice di vista $\mathbf{V}$.
+    \item \textbf{Clip space}: rappresenta lo spazio ottenuto dopo l'applicazione della proiezione. Le coordinate vengono trasformate mediante la matrice di proiezione $\mathbf{P}$, preparando la geometria alle successive fasi di clipping, divisione prospettica e rasterizzazione.
 \end{enumerate}
 
 La trasformazione complessiva di un vertice $\mathbf{v}$ dalla posizione in object space alla posizione in clip space è data dal prodotto:
@@ -276,7 +276,7 @@ Il \textit{fragment shader} è il secondo dei principali stadi programmabili del
 \subsection{Output merger}
 \label{subsec:output-merger}
 
-L'\textit{output merger} è l'ultimo stadio della pipeline, non programmabile. Riceve i frammenti prodotti dal fragment shader e decide quali vengono effettivamente scritti nel framebuffer (il buffer che contiene l'immagine finale destinata allo schermo). Questa decisione avviene attraverso una serie di operazioni, tra cui il \textit{depth test}, che scarta i frammenti nascosti da geometrie più vicine alla camera, e il \textit{blending}, che combina il colore del frammento con quello già presente nel framebuffer. Quest’ultima operazione è particolarmente importante nella gestione della trasparenza.
+L'\textit{output merger} è l'ultimo stadio della pipeline, non programmabile. Riceve i frammenti prodotti dal fragment shader e decide quali vengono effettivamente scritti nel framebuffer (il buffer che contiene l'immagine finale destinata allo schermo). Questa decisione avviene attraverso una serie di operazioni, tra cui il \textit{depth test}, che scarta i frammenti nascosti da geometrie più vicine alla camera, e il \textit{blending}, che combina il colore del frammento con quello già presente nel framebuffer. Quest'ultima operazione è particolarmente importante nella gestione della trasparenza.
 
 \begin{figure}[H]
     \centering
@@ -292,12 +292,12 @@ Unity è un motore di gioco che supporta diverse pipeline di rendering attravers
 
 Le due pipeline attualmente fornite da Unity sono la \textit{Universal Render Pipeline} (URP), orientata alle prestazioni e alla portabilità, e la \textit{High Definition Render Pipeline} (HDRP), orientata alla massima qualità visiva su hardware di fascia alta.
 
-Nel progetto sviluppato in questa tesi è stata adottata URP: poiché l’obiettivo principale consiste nell’implementazione manuale dei modelli di illuminazione, era necessario utilizzare una pipeline che offrisse un controllo diretto sul codice di rendering, riducendo al minimo la complessità aggiuntiva. In questo modo è stato possibile concentrare l’attenzione sulla logica di illuminazione e sul confronto tra i modelli implementati. La scelta della pipeline non influenza i fondamenti teorici trattati: i modelli, le tecniche di shading e la struttura della pipeline grafica rimangono concettualmente identici indipendentemente dalla pipeline adottata.
+Nel progetto sviluppato in questa tesi è stata adottata URP: poiché l'obiettivo principale consiste nell'implementazione manuale dei modelli di illuminazione, era necessario utilizzare una pipeline che offrisse un controllo diretto sul codice di rendering, riducendo al minimo la complessità aggiuntiva. In questo modo è stato possibile concentrare l'attenzione sulla logica di illuminazione e sul confronto tra i modelli implementati. La scelta della pipeline non influenza i fondamenti teorici trattati: i modelli, le tecniche di shading e la struttura della pipeline grafica rimangono concettualmente identici indipendentemente dalla pipeline adottata.
 
 \section{Il linguaggio HLSL e ShaderLab}
 \label{sec:hlsl}
 
-Gli shader in Unity vengono scritti in file con estensione \texttt{.shader} che utilizzano ShaderLab, un linguaggio proprietario che descrive la struttura generale dello shader, le sue proprietà e i pass di rendering. All’interno di questa struttura viene inserito il codice HLSL, responsabile dell’implementazione della logica del vertex shader e del fragment shader.
+Gli shader in Unity vengono scritti in file con estensione \texttt{.shader} che utilizzano ShaderLab, un linguaggio proprietario che descrive la struttura generale dello shader, le sue proprietà e i pass di rendering. All'interno di questa struttura viene inserito il codice HLSL, responsabile dell'implementazione della logica del vertex shader e del fragment shader.
 
 Uno shader Unity è organizzato nei seguenti blocchi: \texttt{Properties}, che espone i parametri configurabili del materiale dell'inspector di Unity; \texttt{Shader}, il blocco esterno identificato da un nome; uno o più \texttt{SubShader}, ciascuno pensato per una specifica piattaforma; uno o più \texttt{Pass}, che rappresentano singole esecuzioni della pipeline, ognuna con il proprio vertex e fragment shader.
 
@@ -1931,7 +1931,7 @@ for (int x = 0; x < size; x++) {
         GameObject s = Instantiate(spherePrefab, pos, Quaternion.identity);
         Material m = s.GetComponent<Renderer>().material;
         m.SetFloat("_Metallic",  x / (float)(size - 1));
-        m.SetFloat("_Roughness", max(y / (float)(size - 1), 0.05));
+        m.SetFloat("_Roughness", Mathf.Max(y / (float)(size - 1), 0.05f));
     }
 }
 \end{lstlisting}
