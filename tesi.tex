@@ -197,7 +197,7 @@ La tesi è così strutturata:
     un'introduzione all'Image-Based Lighting;
     \item il \cref{chap:custom} presenta, dal punto di vista concettuale, alcuni shader personalizzati che esulano dal fotorealismo, mostrando le possibilità espressive della pipeline
     programmabile;
-    \item il \cref{chap:progetto} costituisce il cuore del lavoro: raccoglie l'implementazione HLSL di tutti gli shader, la loro integrazione nel progetto Unity, le scene di test e il confronto visivo e prestazionale tra i modelli;
+    \item il \cref{chap:progetto} raccoglie l'implementazione HLSL di tutti gli shader, la loro integrazione nel progetto Unity, le scene di test e il confronto visivo e prestazionale tra i modelli;
     \item il \cref{chap:conclusioni} raccoglie le considerazioni conclusive.
 \end{itemize}
 
@@ -272,7 +272,7 @@ Per ogni frammento generato, la rasterizzazione interpola linearmente gli attrib
 \subsection{Fragment shader}
 \label{subsec:fragment-shader}
 
-Il \textit{fragment shader} è il secondo dei principali stadi programmabili della pipeline. Esso viene eseguito una volta per ciascun frammento generato dalla rasterizzazione e ha il compito di determinarne il colore finale. Per svolgere questa operazione, il fragment shader riceve in ingresso gli attributi interpolati durante la fase di rasterizzazione, come la normale, la posizione nello spazio e le coordinate texture. Tali informazioni vengono utilizzate per valutare il modello di illuminazione scelto e calcolare il contributo della luce sulla superficie. I modelli di illuminazione vengono solitamente implementati in questo stadio, anziché nel vertex shader, poiché il calcolo dell'illuminazione per-pixel produce risultati significativamente più accurati rispetto al calcolo per-vertice, soprattutto in presenza di riflessi speculari o variazioni locali della superficie.
+Il \textit{fragment shader} è il secondo dei principali stadi programmabili della pipeline. Esso viene eseguito una volta per ciascun frammento generato dalla rasterizzazione e ha il compito di determinarne il colore finale. Per svolgere questa operazione, il fragment shader riceve in ingresso gli attributi interpolati durante la fase di rasterizzazione, come la normale, la posizione nello spazio e le coordinate texture. Tali informazioni vengono utilizzate per valutare il modello di illuminazione scelto e calcolare il contributo della luce sulla superficie. I modelli di illuminazione vengono solitamente implementati in questo stadio, anziché nel vertex shader, poiché il calcolo dell'illuminazione per-pixel (\textit{Phong shading}) produce risultati significativamente più accurati rispetto al calcolo per-vertice, soprattutto in presenza di riflessi speculari o variazioni locali della superficie.
 
 \subsection{Output merger}
 \label{subsec:output-merger}
@@ -289,7 +289,7 @@ L'\textit{output merger} è l'ultimo stadio della pipeline, non programmabile. R
 \section{La pipeline di rendering in Unity}
 \label{sec:urp}
 
-Unity è un motore di gioco che supporta diverse pipeline di rendering attraverso il sistema \textit{Scriptable Render Pipeline} (SRP). Questo consente di definire l'intero flusso di rendering, offrendo un livello di controllo che la precedente pipeline integrata (\textit{Built-in Render Pipeline}) non permetteva.
+Unity è un motore di gioco che supporta diverse pipeline di rendering attraverso il sistema \textit{Scriptable Render Pipeline}. Questo consente di definire l'intero flusso di rendering, offrendo un livello di controllo che la precedente pipeline integrata (\textit{Built-in Render Pipeline}) non permetteva.
 
 Le due pipeline attualmente fornite da Unity sono la \textit{Universal Render Pipeline} (URP), orientata alle prestazioni e alla portabilità, e la \textit{High Definition Render Pipeline} (HDRP), orientata alla massima qualità visiva su hardware di fascia alta.
 
@@ -300,7 +300,7 @@ Nel progetto sviluppato in questa tesi è stata adottata URP: poiché l’obiett
 
 Gli shader in Unity vengono scritti in file con estensione \texttt{.shader} che utilizzano ShaderLab, un linguaggio proprietario che descrive la struttura generale dello shader, le sue proprietà e i pass di rendering. All’interno di questa struttura viene inserito il codice HLSL, responsabile dell’implementazione della logica del vertex shader e del fragment shader.
 
-Uno shader Unity è organizzato nei seguenti blocchi: \textbf{Properties}, che espone i parametri configurabili del materiale dell'inspector di Unity; \textbf{Shader}, il blocco esterno identificato da un nome; uno o più \textbf{SubShader}, ciascuno pensato per una specifica piattaforma; uno o più \textbf{Pass}, che rappresentano singole esecuzioni della pipeline, ognuna con il proprio \textit{vertex} e \textit{fragment shader}.
+Uno shader Unity è organizzato nei seguenti blocchi: \texttt{Properties}, che espone i parametri configurabili del materiale dell'inspector di Unity; \texttt{Shader}, il blocco esterno identificato da un nome; uno o più \texttt{SubShader}, ciascuno pensato per una specifica piattaforma; uno o più \texttt{Pass}, che rappresentano singole esecuzioni della pipeline, ognuna con il proprio vertex e fragment shader.
 
 L'esempio seguente mostra la struttura minima di uno shader per URP, con un vertex shader che trasforma le coordinate e un fragment shader che restituisce un colore uniforme:
 
@@ -352,13 +352,13 @@ Shader "Custom/NomeShader" {
 \end{lstlisting}
 \end{minipage}
 
-Le strutture \texttt{Attributes} e \texttt{Varyings} definiscono rispettivamente i dati in ingresso al \textit{vertex shader} e quelli passati al fragment shader dopo la rasterizzazione. Ogni campo è annotato con una \textbf{semantica} (\texttt{POSITION}, \texttt{NORMAL}, \texttt{SV\_POSITION}, \ldots) che indica alla GPU il significato del dato e come instradarlo nella pipeline. I suffissi \texttt{OS}, \texttt{WS} e \texttt{CS} sono una convenzione di Unity per indicare lo spazio di riferimento del valore: \textit{Object Space}, \textit{World Space} e \textit{Clip Space}.
+Le strutture \texttt{Attributes} e \texttt{Varyings} definiscono rispettivamente i dati in ingresso al vertex shader e quelli passati al fragment shader dopo la rasterizzazione. Ogni campo è annotato con una \textbf{semantica} (\texttt{POSITION}, \texttt{NORMAL}, \texttt{SV\_POSITION}, \ldots) che indica alla GPU il significato del dato e come instradarlo nella pipeline. I suffissi \texttt{OS}, \texttt{WS} e \texttt{CS} sono una convenzione di Unity per indicare lo spazio di riferimento del valore: \textit{Object Space}, \textit{World Space} e \textit{Clip Space}.
 
 Questa struttura è la base su cui verranno costruiti tutti gli shader nei capitoli successivi.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{img/inspector.jpeg}
+    \includegraphics[width=0.67\textwidth]{img/inspector.jpeg}
     \caption[L'Inspector di Unity]{L'inspector di un materiale in Unity: i parametri mostrati corrispondono alle proprietà dichiarate nel blocco \texttt{Properties} dello shader.}
     \label{fig:inspector}
 \end{figure}
@@ -371,7 +371,7 @@ Questa struttura è la base su cui verranno costruiti tutti gli shader nei capit
 
 Questo capitolo presenta i modelli di illuminazione storicamente più rilevanti nella grafica in tempo reale: il modello di Phong e la sua variante proposta da Blinn. Si tratta di modelli empirici, pur non essendo fondati su una descrizione fisicamente accurata dell'interazione tra luce e materia, approssimano in modo efficace il comportamento visivo della luce, mantenendo un costo computazionale contenuto.
 
-Entrambi sono modelli di illuminazione locale: calcolano il colore di un punto considerando solo la luce che arriva direttamente dalle sorgenti, senza tener conto dei rimbalzi successivi tra le superfici. Al contrario, i modelli di illuminazione globale simulano anche la luce indiretta producendo risultati molto più realistici, ma a un costo computazionale spesso incompatibile con il rendering in tempo reale e non verranno trattati in questa tesi. Il PBR, trattato nel \cref{chap:pbr}, può avvicinarsi all'illuminazione globale tramite l'Image-Based Lighting, pur restando nell'ambito dei modelli locali.
+Entrambi sono modelli di illuminazione locale: calcolano il colore di un punto considerando solo la luce che arriva direttamente dalle sorgenti, senza tener conto dei rimbalzi successivi tra le superfici. Al contrario, i modelli di illuminazione globale simulano anche la luce indiretta producendo risultati molto più realistici, ma a un costo computazionale spesso incompatibile con il rendering in tempo reale e non verranno trattati in questa tesi. Il PBR, trattato nel \cref{chap:pbr}, può avvicinarsi all'illuminazione globale tramite l'\textit{Image-Based Lighting}, pur restando nell'ambito dei modelli locali.
 
 Dopo aver introdotto i concetti di base sull'interazione tra luce e superficie, vengono formalizzati i due modelli e analizzate le differenze tra le principali tecniche di shading: flat, Gouraud e Phong shading. Le relative implementazioni HLSL sono presentate nel \cref{chap:progetto}, dedicato alla parte pratica del lavoro.
 
@@ -462,7 +462,7 @@ Per comprenderne la formulazione matematica è necessario definire i principali 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/classicModels/phong-vectors.png}
+    \includegraphics[width=0.6\textwidth]{img/classicModels/phong-vectors.jpeg}
     \caption[Vettori coinvolti nel modello di Phong]{Vettori coinvolti nel modello di Phong. Immagine adattata da ~\cite{wiki_blinnphong}.}
     \label{fig:phong-vectors}
 \end{figure}
@@ -542,7 +542,7 @@ Si osserva che una superficie riflette la luce in modo speculare verso l'osserva
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{img/classicModels/blinn-phong-vectors.png}
+    \includegraphics[width=0.6\textwidth]{img/classicModels/blinn-phong-vectors.jpeg}
     \caption[Vettori coinvolti nel modello di Blinn-Phong]{Vettori coinvolti nel modello di Blinn-Phong. Immagine adattata da ~\cite{wiki_blinnphong}.}
     \label{fig:blinn-vectors}
 \end{figure}
@@ -1128,7 +1128,7 @@ Per completare l'effetto fumetto, è possibile aggiungere un contorno nero attor
 
 \section{Hologram shader}
 \label{sec:hologram}
-Questo shader non si basa su un modello di illuminazione fisico, ma combina tre effetti sovrapposti per simulare l'aspetto di un ologramma: \textit{rim lighting}, pattern a strisce e \textit{flicker}.
+Questo shader non si basa su un modello di illuminazione fisico, ma combina tre effetti sovrapposti per simulare l'aspetto di un ologramma: \textit{rim lighting}, \textit{striped pattern} e \textit{flicker}.
 
 \subsection{Rim lighting}
 \label{subsec:rim}
@@ -1142,10 +1142,10 @@ Il \textit{rim lighting} illumina i bordi dell'oggetto sfruttando lo stesso prin
 
 dove $p$ controlla la concentrazione dell'effetto: valori alti producono bordi più sottili e intensi.
 
-\subsection{Pattern a strisce}
+\subsection{Striped pattern}
 \label{subsec:scanlines}
 
-Questo effetto consiste in bande orizzontali che scorrono verso il basso lungo la superficie. Si ottiene applicando una funzione sinusoidale alla coordinata verticale $y$ del frammento, animata nel tempo:
+Questo effetto consiste in strisce orizzontali che scorrono verso il basso lungo la superficie. Si ottiene applicando una funzione sinusoidale alla coordinata verticale $y$ del frammento, animata nel tempo:
 
 \begin{equation}
     \text{scan} =
@@ -1181,7 +1181,7 @@ A differenza degli shader precedenti, questo richiede la trasparenza: l'oggetto 
     \label{fig:hologram}
 \end{figure}
 
-Gli shader descritti in questo capitolo, insieme ai modelli di illuminazione classici e al modello PBR presentati nei capitoli precedenti, sono stati integrati nel progetto dimostrativo sviluppato in Unity. Il capitolo successivo descrive la struttura del progetto, le scelte implementative adottate e le modalità con cui i diversi shader possono essere confrontati all'interno della scena.
+Gli effetti descritti in questo capitolo, insieme ai modelli di illuminazione classici e al modello PBR presentati nei capitoli precedenti, sono stati integrati nel progetto dimostrativo sviluppato in Unity. Il capitolo successivo descrive la struttura del progetto, le scelte implementative adottate e le modalità con cui i diversi shader possono essere confrontati all'interno della scena.
 
 
 % ============================================================
@@ -1622,7 +1622,7 @@ float4 frag(Varyings IN) : SV_Target {
 \subsection{Hologram shader}
 \label{subsec:impl-hologram}
 
-Lo shader hologram (\cref{sec:hologram}) combina rim lighting, pattern a strisce e flicker, e introduce la trasparenza. La configurazione del pass abilita l'alpha blending, imposta la coda di rendering a \texttt{Transparent} e disabilita la scrittura nel depth buffer:
+Lo shader hologram (\cref{sec:hologram}) combina rim lighting, striped pattern e flicker, e introduce la trasparenza. La configurazione del pass abilita l'alpha blending, imposta la coda di rendering a \texttt{Transparent} e disabilita la scrittura nel depth buffer:
 
 \begin{lstlisting}[style=hlsl,
     caption={Configurazione del pass per la trasparenza.},
@@ -1648,15 +1648,15 @@ float4 frag(Varyings IN) : SV_Target {
     // Rim lighting
     float rim = pow(1.0 - max(dot(N, V), 0.0), _RimPower);
     
-    // Pattern a strisce
-    float scan = sin(IN.positionWS.y * _ScanDensity + _Time.y * _ScanSpeed);
-    scan = step(0.0, scan);
+    // Striped pattern
+    float stripe = sin(IN.positionWS.y * _StripeDensity + _Time.y * _StripeSpeed);
+    stripe = step(0.0, stripe);
     
     // Flicker
     float flicker = 0.95 + 0.05 * sin(_Time.y * _FlickerSpeed);
     
     // Opacita'
-    float alpha = (rim + _ScanAlpha * scan) * flicker;
+    float alpha = (rim + _StripeAlpha * stripe) * flicker;
     alpha = clamp(alpha, 0.1, 1.0);
     
     // Colore finale
@@ -1671,7 +1671,7 @@ float4 frag(Varyings IN) : SV_Target {
 \section{Integrazione nel progetto Unity}
 \label{sec:progetto}
 
-Gli shader descritti nella sezione precedente sono stati integrati in un progetto Unity organizzato in più scene: una scena principale interattiva, in cui esplorare i materiali e regolarne i parametri a runtime, e un insieme di scene di test dedicate al confronto sistematico tra i modelli. Le scene sono descritte nella \cref{sec:scene-test}; questa sezione si concentra sugli script che ne gestiscono il funzionamento: la navigazione in prima persona, la selezione degli oggetti, il pannello di controllo e il cambio di scena.
+Gli shader descritti nella sezione precedente sono stati integrati in un progetto Unity organizzato in più scene: una scena principale interattiva, in cui esplorare i materiali e regolarne i parametri, e un insieme di scene di test dedicate al confronto tra i modelli. Le scene sono descritte nella \cref{sec:scene-test}; questa sezione si concentra sugli script che ne gestiscono il funzionamento: la navigazione in prima persona, la selezione degli oggetti, il pannello di controllo e il cambio di scena.
 
 \begin{minipage}{\textwidth}
 
@@ -1703,7 +1703,7 @@ controller.Move(move * moveSpeed * Time.deltaTime);
 \subsection{Selezione degli oggetti}
 \label{subsec:selezione}
 
-Ogni oggetto modificabile è dotato dello script \texttt{SelectableObject}, che ne definisce il nome e l'insieme di materiali disponibili. All'avvio lo script crea una copia di ciascun materiale, in modo che le modifiche apportate a runtime siano indipendenti per ogni oggetto e non alterino i materiali originali del progetto. Il primo materiale dell'elenco viene applicato come predefinito.
+Ogni oggetto modificabile è dotato dello script \texttt{SelectableObject}, che ne definisce il nome e l'insieme di materiali disponibili. All'avvio lo script crea una copia di ciascun materiale, in modo che le modifiche apportate durante l'esecuzione siano indipendenti per ogni oggetto e non alterino i materiali originali del progetto. Il primo materiale dell'elenco viene applicato come predefinito.
 
 Poiché i modelli importati possono essere composti da più mesh annidate, lo script raccoglie tutti i \texttt{Renderer} presenti nell'oggetto e nei suoi figli, applicando il materiale a ciascuno di essi.
 
@@ -1865,7 +1865,7 @@ I risultati e il relativo commento sono riportati nella \cref{sec:confronto-visi
 
 Questa scena dispone una griglia di sfere con shader Cook-Torrance, in cui il parametro metallic varia lungo un asse e la roughness lungo l'altro. Permette di osservare in un'unica immagine come i due parametri modifichino l'aspetto del materiale.
 
-Per evitare di configurare manualmente le decine di sfere della griglia, queste vengono generate a runtime da uno script che ne imposta i parametri in base alla posizione:
+Per evitare di configurare manualmente le decine di sfere della griglia, queste vengono generate durante l'esecuzione da uno script che ne imposta i parametri in base alla posizione:
 
 \begin{minipage}{\textwidth}
 \begin{lstlisting}[style=hlsl,
