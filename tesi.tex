@@ -1330,7 +1330,7 @@ Tutti gli shader presentati nel resto del capitolo utilizzano il Phong shading, 
 \subsection{Struttura comune degli shader}
 \label{subsec:struttura-comune}
 
-Gli shader che implementano i modelli di illuminazione per frammento (Phong, Blinn-Phong e Cook-Torrance) condividono la stessa struttura di base: un vertex shader che trasforma posizione e normale dallo spazio oggetto allo spazio mondo, e un fragment shader che applica il modello di illuminazione per ogni frammento. A cambiare tra uno shader e l'altro sono soltanto le proprietà esposte nel blocco \texttt{Properties} e il contenuto del fragment shader; il vertex shader e le strutture \texttt{Attributes} e \texttt{Varyings} restano invariati. Le proprietà del materiale vengono esposte nelle \texttt{Properties}, così da poter essere regolate dal pannello descritto nella \cref{subsec:pannello}.
+Gli shader che implementano i modelli di illuminazione (Phong, Blinn-Phong e Cook-Torrance) condividono la stessa struttura di base: un vertex shader che trasforma posizione e normale dallo spazio oggetto allo spazio mondo, e un fragment shader che applica il modello di illuminazione per ogni frammento. A cambiare tra uno shader e l'altro sono soltanto le proprietà esposte nel blocco \texttt{Properties} e il contenuto del fragment shader; il vertex shader e le strutture \texttt{Attributes} e \texttt{Varyings} restano invariati. Le proprietà del materiale vengono esposte nelle \texttt{Properties}, così da poter essere regolate dal pannello descritto nella \cref{subsec:pannello}.
 
 L'esempio seguente mostra la struttura comune con le proprietà dei modelli classici (Phong e Blinn-Phong); il modello di Cook-Torrance adotta la stessa struttura, cambiando solo le proprietà esposte.
 
@@ -1338,7 +1338,7 @@ L'esempio seguente mostra la struttura comune con le proprietà dei modelli clas
 \begin{lstlisting}[style=hlsl,
     caption={Struttura comune degli shader per i modelli classici.},
     label={lst:common-structure}]
-Shader "Custom/NomeModello" {
+Shader "Custom/NomeShader" {
     Properties {
         _Color    ("Colore",    Color)                      = (1, 1, 1, 1)
         _AmbientK ("Ambient",   Range(0, 1))                = 0.1
@@ -1400,7 +1400,8 @@ Lo shader di Phong implementa il modello classico originale (\cref{sec:phong}) e
     caption={Fragment shader del modello di Phong.},
     label={lst:frag-phong}]
 float4 frag(Varyings IN) : SV_Target {
-    Light light = GetMainLight(); // Sorgente luminosa
+    // Sorgente luminosa
+    Light light = GetMainLight();
     
     // Vettori
     float3 N = normalize(IN.normalWS);
@@ -1429,7 +1430,8 @@ Lo shader di Blinn-Phong (\cref{sec:blinn-phong}) differisce da quello di Phong 
     caption={Fragment shader del modello di Blinn-Phong.},
     label={lst:frag-blinn}]
 float4 frag(Varyings IN) : SV_Target {
-    Light light = GetMainLight(); // Sorgente luminosa
+    // Sorgente luminosa
+    Light light = GetMainLight();
     
     // Vettori
     float3 N = normalize(IN.normalWS);
@@ -1454,7 +1456,7 @@ float4 frag(Varyings IN) : SV_Target {
 
 Lo shader PBR implementa la BRDF di Cook-Torrance (\cref{sec:cook-torrance}) e permette di valutare una resa fisicamente plausibile. Adotta la struttura comune descritta nella \cref{subsec:struttura-comune}, esponendo però le proprietà del workflow metallic/roughness (\texttt{\_Albedo}, \texttt{\_Metallic}, \texttt{\_Roughness}) e un termine ambientale (\texttt{\_AmbientK}) al posto dei coefficienti dei modelli classici.
 
-I tre termini $D$, $F$ e $G$ della BRDF sono implementati come funzioni HLSL separate, richiamate nel fragment shader.
+I tre termini $D$, $F$ e $G$ della BRDF sono implementati come funzioni HLSL separate, richiamate dal fragment shader.
 
 \begin{lstlisting}[style=hlsl,
     caption={Funzioni dei termini D, F e G della BRDF.},
@@ -1494,7 +1496,8 @@ Il fragment shader assembla i tre termini nella BRDF, combinando la componente s
     caption={Fragment shader del modello di Cook-Torrance.},
     label={lst:frag-pbr}]
 float4 frag(Varyings IN) : SV_Target {
-    Light light = GetMainLight(); // Sorgente luminosa
+    // Sorgente luminosa
+    Light light = GetMainLight();
     
     // Vettori
     float3 N = normalize(IN.normalWS);
@@ -1545,7 +1548,7 @@ float  metallic  = SAMPLE_TEXTURE2D(_MetallicMap,  sampler_MetallicMap,  IN.uv).
 float  roughness = SAMPLE_TEXTURE2D(_RoughnessMap, sampler_RoughnessMap, IN.uv).r;
 \end{lstlisting}
 
-La normal map richiede un passaggio aggiuntivo. Le normali memorizzate nella texture sono espresse in un sistema di coordinate locale alla superficie (\textit{tangent space}) e devono essere trasformate in world space per essere utilizzate nei calcoli di illuminazione. Per farlo si costruisce la matrice \textbf{TBN} dai tre vettori che descrivono l'orientamento della superficie nel mondo (la tangente $\mathbf{T}$, la bitangente $\mathbf{B}$ e la normale $\mathbf{N}$, trasformati in world space dal vertex shader) e si moltiplica la normale letta dalla texture per tale matrice, ottenendo una normale espressa nel sistema di riferimento globale:
+La normal map richiede un passaggio aggiuntivo. Le normali memorizzate nella texture sono espresse in un sistema di coordinate locale alla superficie (\textit{tangent space}) e devono essere trasformate in world space per essere utilizzate nei calcoli di illuminazione. Per farlo si costruisce la matrice \textbf{TBN} dai tre vettori che descrivono l'orientamento della superficie nel mondo (la tangente $\mathbf{T}$, la bitangente $\mathbf{B}$ e la normale $\mathbf{N}$, trasformati in world space dal vertex shader) e si moltiplica la normale letta dalla texture per questa matrice, ottenendo una normale espressa nel sistema di riferimento globale:
 
 \begin{lstlisting}[style=hlsl,
     caption={Applicazione della normal map.},
@@ -1901,11 +1904,12 @@ Questa scena è dedicata al confronto tra Phong e Blinn-Phong in presenza del ri
 \subsection{Scena di confronto tra Blinn-Phong e Cook-Torrance}
 \label{subsec:scena-blinn-pbr}
 
-Questa scena confronta il modello empirico di Blinn-Phong con il modello di Cook-Torrance, su sfere identiche e sotto la stessa illuminazione. Sono previste due configurazioni, pensate per evidenziare due differenze distinte:
+Questa scena confronta il modello empirico di Blinn-Phong con il modello di Cook-Torrance, su sfere identiche e sotto la stessa illuminazione. Sono previste tre configurazioni, pensate per evidenziare tre differenze distinte:
 
 \begin{itemize}
     \item un materiale metallico: mette in luce come Blinn-Phong produca un riflesso speculare bianco, mentre Cook-Torrance lo colori in base all'albedo del metallo;
-    \item un materiale con rugosità elevata: evidenzia lo scurimento dei bordi prodotto dal termine $G$ del PBR, assente in Blinn-Phong.
+    \item un materiale con rugosità elevata: evidenzia lo scurimento dei bordi prodotto dal termine $G$ del PBR, assente in Blinn-Phong;
+    \item una coppia di sfere lisce osservate da angolazioni diverse: evidenzia l'effetto Fresnel, che in Cook-Torrance intensifica il riflesso speculare agli angoli radenti.
 \end{itemize}
 
 I risultati e il relativo commento sono riportati nella \cref{sec:confronto-visivo}.
@@ -1938,7 +1942,7 @@ Il risultato e il commento sono riportati nella \cref{sec:confronto-visivo}.
 \subsection{Scena dei materiali con texture}
 \label{subsec:scena-texture}
 
-Questa scena raccoglie alcune sfere con shader Cook-Torrance configurate con set di texture diversi (albedo, metallic, roughness e normal map), corrispondenti a materiali reali come legno, metallo e pietra. A differenza delle altre scene, in cui i parametri sono costanti e variano solo tra una sfera e l'altra, qui ogni sfera mostra la variazione locale dei parametri sulla propria superficie, resa possibile dalle texture. La scena serve a evidenziare il contributo delle texture map alla resa di materiali complessi. Il risultato è riportato nella \cref{subsec:conf-texture}.
+Questa scena raccoglie alcune sfere con shader Cook-Torrance configurate con set di texture diversi (albedo, metallic, roughness e normal map), corrispondenti a materiali come legno, metallo e pietra. A differenza delle altre scene, in cui i parametri sono costanti e variano solo tra una sfera e l'altra, qui ogni sfera mostra la variazione locale dei parametri sulla propria superficie, resa possibile dalle texture. La scena serve a evidenziare il contributo delle texture map alla resa di materiali complessi. Il risultato è riportato nella \cref{subsec:conf-texture}.
 
 \newpage
 
@@ -1954,14 +1958,14 @@ In condizioni di illuminazione normali, su una superficie curva, i modelli di Ph
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/classicModels/phong.png}
         \caption{Phong}
         \label{fig:conf-phong}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/classicModels/blinnphong.png}
         \caption{Blinn-Phong}
@@ -1975,14 +1979,14 @@ La differenza diventa invece netta in presenza di luce radente e shininess bassa
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/cutoff/phong-sfera.png}
         \caption{Phong}
         \label{fig:conf-cutoff-phong}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/cutoff/blinnphong-sfera.png}
         \caption{Blinn-Phong}
@@ -1994,14 +1998,14 @@ La differenza diventa invece netta in presenza di luce radente e shininess bassa
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/cutoff/phong-piano.jpg}
         \caption{Phong}
         \label{fig:conf-cutoff-piano-phong}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/cutoff/blinnphong-piano.jpg}
         \caption{Blinn-Phong}
@@ -2020,14 +2024,14 @@ Il confronto tra Blinn-Phong e Cook-Torrance evidenzia il passaggio da un modell
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/confronto/blinn-oro.png}
         \caption{Blinn-Phong}
         \label{fig:conf-oro-blinn}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/confronto/pbr-oro.png}
         \caption{Cook-Torrance}
@@ -2045,14 +2049,14 @@ Una seconda differenza emerge con materiali rugosi. Il termine $G$ di Cook-Torra
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/confronto/blinn-rough.png}
         \caption{Blinn-Phong}
         \label{fig:conf-rough-blinn}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.48\textwidth}
+    \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/confronto/pbr-rough.png}
         \caption{Cook-Torrance}
@@ -2060,6 +2064,47 @@ Una seconda differenza emerge con materiali rugosi. Il termine $G$ di Cook-Torra
     \end{subfigure}
     \caption[Confronto con rugosità elevata]{Confronto con rugosità elevata. In Cook-Torrance i bordi risultano più scuri per effetto del termine $G$, assente in Blinn-Phong.}
     \label{fig:conf-rough}
+\end{figure}
+
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+
+Una terza differenza riguarda l'effetto Fresnel, presente in Cook-Torrance tramite il termine $F$ (\cref{subsec:fresnel}) e assente in Blinn-Phong. Poiché negli shader sviluppati non è implementato l'Image-Based Lighting, il Fresnel non si manifesta come riflesso dell'ambiente, ma come aumento della riflettanza speculare agli angoli radenti. Lo si può osservare spostando il punto di vista in modo che il riflesso speculare passi dal centro della sfera verso il bordo: in Cook-Torrance il riflesso diventa più intenso man mano che si avvicina al contorno, mentre in Blinn-Phong la sua intensità resta invariata (\cref{fig:conf-fresnel}).
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.44\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/pbr/confronto/fresnel-blinn-centro.png}
+        \caption{Blinn-Phong, riflesso al centro}
+        \label{fig:conf-fresnel-blinn-centro}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.44\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/pbr/confronto/fresnel-blinn-bordo.png}
+        \caption{Blinn-Phong, riflesso al bordo}
+        \label{fig:conf-fresnel-blinn-bordo}
+    \end{subfigure}
+
+    \vspace{0.5em}
+
+    \begin{subfigure}[b]{0.44\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/pbr/confronto/fresnel-pbr-centro.png}
+        \caption{Cook-Torrance, riflesso al centro}
+        \label{fig:conf-fresnel-pbr-centro}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.44\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/pbr/confronto/fresnel-pbr-bordo.png}
+        \caption{Cook-Torrance, riflesso al bordo}
+        \label{fig:conf-fresnel-pbr-bordo}
+    \end{subfigure}
+    \caption[Effetto Fresnel su luce diretta]{Effetto Fresnel con luce diretta. In Blinn-Phong il riflesso ha la stessa intensità al centro (a) e al bordo (b). In Cook-Torrance il riflesso al bordo (d) è più intenso che al centro (c).}
+    \label{fig:conf-fresnel}
 \end{figure}
 
 \end{minipage}
@@ -2122,7 +2167,7 @@ L'uso delle texture non modifica il modello di illuminazione, ma permette di var
 \subsection{Shader non fotorealistici}
 \label{subsec:conf-custom}
 
-Toon e hologram non hanno l'obiettivo di simulare la realtà, ma di mostrare la flessibilità della pipeline programmabile. Il toon shading, pur basandosi sull'illuminazione di Blinn-Phong, ne quantizza il risultato in fasce nette, producendo un aspetto da disegno animato lontano dal fotorealismo dei modelli precedenti. L'effetto ologramma combina invece rim lighting, trasparenza e animazioni per ottenere un risultato puramente stilistico, non riconducibile ad alcun modello fisico. Entrambi mostrano come la pipeline non sia vincolata esclusivamente alla resa realistica: lo stesso meccanismo usato per Phong, Blinn-Phong e Cook-Torrance può produrre qualsiasi effetto visivo definito dallo sviluppatore (\cref{fig:conf-custom}).
+Toon e hologram non hanno l'obiettivo di simulare la realtà, ma di mostrare la flessibilità della pipeline programmabile. Il toon shading, pur basandosi sull'illuminazione di Blinn-Phong, ne quantizza il risultato in fasce, producendo un aspetto cartoon lontano dal fotorealismo dei modelli precedenti. L'effetto ologramma combina invece rim lighting, trasparenza e animazioni per ottenere un risultato puramente stilistico, non riconducibile ad alcun modello fisico. Entrambi mostrano come la pipeline non sia vincolata esclusivamente alla resa realistica: lo stesso meccanismo usato per Phong, Blinn-Phong e Cook-Torrance può produrre qualsiasi effetto visivo definito dallo sviluppatore (\cref{fig:conf-custom}).
 
 \begin{figure}[H]
     \centering
@@ -2226,7 +2271,7 @@ Queste semplificazioni, coerenti con l'obiettivo didattico e comparativo del lav
 
 Il lavoro potrebbe essere esteso in diverse direzioni:
 \begin{itemize}
-    \item \textbf{Image-Based Lighting}: l'implementazione completa dell'IBL, con irradiance map e cubemap filtrate per la componente speculare, migliorerebbe sensibilmente la resa dei materiali, in particolare dei metalli, e renderebbe pienamente visibile l'effetto Fresnel.
+    \item \textbf{Image-Based Lighting}: l'implementazione completa dell'IBL migliorerebbe sensibilmente la resa dei materiali, in particolare dei metalli, e renderebbe pienamente visibile l'effetto Fresnel.
     \item \textbf{Luci multiple e ombre}: il supporto a più sorgenti luminose e alle ombre proiettate renderebbe gli shader utilizzabili in scene più complesse e realistiche.
     \item \textbf{Modelli avanzati}: BRDF più sofisticate permetterebbero di rappresentare una gamma più ampia di materiali, come quelli anisotropi o traslucidi (\textit{subsurface scattering}).
     \item \textbf{Ray tracing}: le GPU moderne supportano il ray tracing in tempo reale, che permette di calcolare riflessioni, rifrazioni e illuminazione globale in modo fisicamente accurato, superando le approssimazioni del rendering rasterizzato.
