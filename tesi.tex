@@ -123,7 +123,7 @@
 
 \noindent
 \begin{minipage}[t]{0.45\textwidth}
-{\Large\bfseries Relatore:\\Chiar.ma Prof.ssa\\Damiana Lazzaro}
+{\Large\bfseries Relatore:\\Prof.ssa Damiana Lazzaro}
 \end{minipage}
 \hfill
 \begin{minipage}[t]{0.45\textwidth}\raggedleft
@@ -1986,7 +1986,8 @@ In condizioni di illuminazione normali, su una superficie curva, i modelli di Ph
         \caption{Blinn-Phong}
         \label{fig:conf-blinn}
     \end{subfigure}
-    \caption[Confronto tra Phong e Blinn-Phong]{Confronto tra Phong e Blinn-Phong con parametri equiparati. In condizioni normali i due modelli sono quasi indistinguibili.}
+    \caption[Confronto tra Phong e Blinn-Phong]{Confronto tra Phong e Blinn-Phong con parametri equiparati. In condizioni normali i due modelli sono quasi indistinguibili. \\
+    Parametri: ambient = 0.04, diffuse = 0.7, specular = 0.5, shininess = 64.}
     \label{fig:conf-phong-blinn}
 \end{figure}
 
@@ -2007,7 +2008,8 @@ La differenza diventa invece netta in presenza di luce radente e shininess bassa
         \caption{Blinn-Phong}
         \label{fig:conf-cutoff-blinn}
     \end{subfigure}
-    \caption[Riflesso speculare troncato su una sfera]{Riflesso speculare su una sfera con shininess molto bassa. In Phong il riflesso presenta un taglio netto, assente in Blinn-Phong.}
+    \caption[Riflesso speculare troncato su una sfera]{Riflesso speculare su una sfera con shininess molto bassa. In Phong il riflesso presenta un taglio netto, assente in Blinn-Phong. \\
+    Parametri: ambient = 0.01, diffuse = 0, specular = 1.0, shininess = 1.}
     \label{fig:conf-cutoff}
 \end{figure}
 
@@ -2026,7 +2028,8 @@ La differenza diventa invece netta in presenza di luce radente e shininess bassa
         \caption{Blinn-Phong}
         \label{fig:conf-cutoff-piano-blinn}
     \end{subfigure}
-    \caption[Riflesso speculare troncato su un piano]{Lo stesso confronto su un piano, visto dall'alto con la sorgente luminosa alle spalle dell'osservatore. Il taglio netto del riflesso di Phong è ancora più evidente che sulla sfera.}
+    \caption[Riflesso speculare troncato su un piano]{Lo stesso confronto su un piano, visto dall'alto con la sorgente luminosa alle spalle dell'osservatore. Il taglio netto del riflesso di Phong è ancora più evidente che sulla sfera. \\
+    Parametri: ambient = 0.01, diffuse = 0, specular = 1.0, shininess = 1.}
     \label{fig:conf-cutoff-piano}
 \end{figure}
 
@@ -2052,7 +2055,9 @@ Il confronto tra Blinn-Phong e Cook-Torrance, svolto nella scena dedicata (\cref
         \caption{Cook-Torrance}
         \label{fig:conf-oro-pbr}
     \end{subfigure}
-    \caption[Confronto su un materiale metallico]{Confronto su un materiale metallico (oro). In Blinn-Phong il riflesso speculare è bianco; in Cook-Torrance assume il colore dell'albedo.}
+    \caption[Confronto su un materiale metallico]{Confronto su un materiale metallico (oro). In Blinn-Phong il riflesso speculare è bianco; in Cook-Torrance assume il colore dell'albedo. \\
+    Parametri Blinn-Phong: ambient = 0.1, diffuse = 0.05, specular = 0.75, shininess = 25. \\
+    Parametri Cook-Torrance: ambient = 0.08, metallic = 0.7, roughness = 0.3.}
     \label{fig:conf-oro}
 \end{figure}
 
@@ -2077,7 +2082,9 @@ Una seconda differenza emerge con materiali rugosi. Il termine $G$ di Cook-Torra
         \caption{Cook-Torrance}
         \label{fig:conf-rough-pbr}
     \end{subfigure}
-    \caption[Confronto con rugosità elevata]{Confronto con rugosità elevata. In Cook-Torrance i bordi risultano più scuri per effetto del termine $G$, assente in Blinn-Phong.}
+    \caption[Confronto con rugosità elevata]{Confronto con rugosità elevata. In Cook-Torrance i bordi risultano più scuri per effetto del termine $G$, assente in Blinn-Phong. \\
+    Parametri Blinn-Phong: ambient = 0, diffuse = 0.7, specular = 0. \\
+    Parametri Cook-Torrance: ambient = 0, metallic = 0, roughness = 1.0.}
     \label{fig:conf-rough}
 \end{figure}
 
@@ -2089,14 +2096,14 @@ Una terza differenza riguarda l'effetto Fresnel, presente in Cook-Torrance trami
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.44\textwidth}
+    \begin{subfigure}[b]{0.43\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/confronto/fresnel-blinn-centro.png}
         \caption{Blinn-Phong, riflesso al centro}
         \label{fig:conf-fresnel-blinn-centro}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.44\textwidth}
+    \begin{subfigure}[b]{0.43\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/confronto/fresnel-blinn-bordo.png}
         \caption{Blinn-Phong, riflesso al bordo}
@@ -2105,20 +2112,22 @@ Una terza differenza riguarda l'effetto Fresnel, presente in Cook-Torrance trami
 
     \vspace{0.5em}
 
-    \begin{subfigure}[b]{0.44\textwidth}
+    \begin{subfigure}[b]{0.43\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/confronto/fresnel-pbr-centro.png}
         \caption{Cook-Torrance, riflesso al centro}
         \label{fig:conf-fresnel-pbr-centro}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.44\textwidth}
+    \begin{subfigure}[b]{0.43\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/confronto/fresnel-pbr-bordo.png}
         \caption{Cook-Torrance, riflesso al bordo}
         \label{fig:conf-fresnel-pbr-bordo}
     \end{subfigure}
-    \caption[Effetto Fresnel su luce diretta]{Effetto Fresnel con luce diretta. In Blinn-Phong il riflesso ha la stessa intensità al centro e al bordo. In Cook-Torrance il riflesso al bordo è più intenso che al centro.}
+    \caption[Effetto Fresnel su luce diretta]{Effetto Fresnel con luce diretta. In Blinn-Phong il riflesso ha la stessa intensità al centro e al bordo. In Cook-Torrance il riflesso al bordo è più intenso che al centro. \\
+    Parametri Blinn-Phong: ambient = 0, diffuse = 0.25, specular = 1.0, shininess = 160. \\
+    Parametri Cook-Torrance: ambient = 0, metallic = 0, roughness = 0.2.}
     \label{fig:conf-fresnel}
 \end{figure}
 
@@ -2136,7 +2145,8 @@ La griglia di sfere generata nella scena dedicata (\cref{subsec:scena-griglia}) 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{img/project/screenshot/metallic-roughness.jpg}
-    \caption[Griglia metallic/roughness]{Griglia di sfere Cook-Torrance: il metallic cresce da sinistra a destra, la roughness dal basso verso l'alto.}
+    \caption[Griglia metallic/roughness]{Griglia di sfere Cook-Torrance: il metallic cresce da sinistra a destra, la roughness dal basso verso l'alto.\\
+    Parametri: metallic da 0 a 1 (orizzontale), roughness da 0 a 1 (verticale).}
     \label{fig:conf-griglia}
 \end{figure}
 
