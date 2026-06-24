@@ -73,8 +73,8 @@
 \usepackage{lscape} 
 
 \usepackage{natbib}
-\bibliographystyle{alpha}
-\setcitestyle{super,open={[},close={]}}
+\bibliographystyle{unsrt}
+\setcitestyle{numbers,square,comma}
 
 \newcommand{\rom}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
 
@@ -298,7 +298,7 @@ L'esempio seguente mostra la struttura minima di uno shader per URP, con un vert
 
 \begin{minipage}{\textwidth}
 \begin{lstlisting}[language=C, style=hlsl,
-    caption={Struttura minima di uno shader custom per URP.},
+    caption={Struttura minima di uno shader personalizzato per URP.},
     label={lst:shader-minimal}]
 Shader "Custom/NomeShader" {
     Properties { // Proprieta' configurabili dall'inspector di Unity
@@ -966,7 +966,7 @@ L'effetto visivo di $G$ è quello di scurire i bordi degli oggetti, dove la supe
 \section{Il workflow metallic/roughness}
 \label{sec:workflow}
 
-Il modello PBR è descritto in termini di grandezze fisiche: riflettanza base $F_0$, rugosità delle microfacce, distinzione tra metalli e dielettrici. Per rendere questi parametri utilizzabili in pratica, i motori di rendering moderni adottano il \textit{workflow metallic/roughness}, che riduce la configurazione di un materiale a pochi parametri intuitivi.
+L'approccio PBR descrive i materiali in termini di grandezze fisiche: riflettanza base $F_0$, rugosità delle microfacce, distinzione tra metalli e dielettrici. Per rendere questi parametri utilizzabili in pratica, i motori di rendering moderni adottano il \textit{workflow metallic/roughness}, che riduce la configurazione di un materiale a pochi parametri intuitivi.
 
 \subsection{Parametri di un materiale}
 \label{subsec:parametri-materiale}
@@ -1173,7 +1173,7 @@ A differenza degli shader precedenti, questo richiede la trasparenza: l'oggetto 
     \label{fig:hologram}
 \end{figure}
 
-Gli effetti descritti in questo capitolo, insieme ai modelli di illuminazione classici e al modello PBR presentati nei capitoli precedenti, sono stati integrati nel progetto dimostrativo sviluppato in Unity. Il capitolo successivo descrive la struttura del progetto, le scelte implementative adottate e le modalità con cui i diversi shader possono essere confrontati all'interno della scena.
+Gli effetti descritti in questo capitolo, insieme ai modelli di illuminazione classici e all'approccio PBR presentati nei capitoli precedenti, sono stati integrati nel progetto dimostrativo sviluppato in Unity. Il capitolo successivo descrive la struttura del progetto, le scelte implementative adottate e le modalità con cui i diversi shader possono essere confrontati all'interno della scena.
 
 
 % ============================================================
@@ -1183,7 +1183,7 @@ Gli effetti descritti in questo capitolo, insieme ai modelli di illuminazione cl
 
 I capitoli precedenti hanno presentato la teoria dei modelli di illuminazione e delle tecniche di shading. Questo capitolo raccoglie l'implementazione di tutti gli shader in HLSL, la loro integrazione nel progetto Unity, le scene di test realizzate e il confronto visivo e prestazionale tra i modelli.
 
-Tutti gli shader sono stati realizzati come shader custom per la Universal Render Pipeline (URP) di Unity, scritti in HLSL all'interno della struttura ShaderLab introdotta nel \cref{sec:hlsl}. 
+Tutti gli shader sono stati realizzati come shader personalizzati per la Universal Render Pipeline (URP) di Unity, scritti in HLSL all'interno della struttura ShaderLab introdotta nel \cref{sec:hlsl}.
 
 \section{Shader implementati}
 \label{sec:shader-implementati}
@@ -1447,7 +1447,7 @@ float4 frag(Varyings IN) : SV_Target {
 \subsection{Modello di Cook-Torrance}
 \label{subsec:impl-pbr}
 
-Lo shader PBR implementa la BRDF di Cook-Torrance (\cref{sec:cook-torrance}) e permette di valutare una resa fisicamente plausibile. Adotta la struttura comune descritta nella \cref{subsec:struttura-comune}, esponendo però le proprietà del workflow metallic/roughness (\texttt{\_Albedo}, \texttt{\_Metallic}, \texttt{\_Roughness}) e un termine ambientale (\texttt{\_AmbientK}) al posto dei coefficienti dei modelli classici.
+Lo shader implementa la BRDF di Cook-Torrance (\cref{sec:cook-torrance}) e permette di valutare una resa fisicamente plausibile. Adotta la struttura comune descritta nella \cref{subsec:struttura-comune}, esponendo però le proprietà del workflow metallic/roughness (\texttt{\_Albedo}, \texttt{\_Metallic}, \texttt{\_Roughness}) e un termine ambientale (\texttt{\_AmbientK}) al posto dei coefficienti dei modelli classici.
 
 I tre termini $D$, $F$ e $G$ della BRDF sono implementati come funzioni HLSL separate, richiamate dal fragment shader.
 
@@ -1944,6 +1944,28 @@ Questa scena raccoglie alcune sfere con shader Cook-Torrance configurate con set
 
 In questa sezione vengono messi a confronto i risultati prodotti dai diversi modelli, a partire dalle scene di test descritte in precedenza. Per ogni confronto, oltre alle immagini, viene fornito un commento che spiega l'origine delle differenze osservate, collegandole alla teoria dei capitoli precedenti.
 
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{p{4cm} p{4.3cm} p{4.3cm}}
+        \hline
+        \textbf{Sottosezione} & \textbf{Scena di riferimento} & \textbf{Aspetto analizzato}\\
+        \hline
+        Phong e Blinn-Phong & Scena del riflesso speculare troncato & Differenza nella componente speculare \\
+        \hline
+        Blinn-Phong e Cook-Torrance & Scena di confronto Blinn-Phong / Cook-Torrance & Modello empirico vs BRDF fisicamente plausibile \\
+        \hline
+        Variazione di metallic e roughness & Scena metallic/roughness & Effetto dei parametri del workflow PBR \\
+        \hline
+        Effetto delle texture & Scena dei materiali con texture & Variazione locale dei parametri \\
+        \hline
+        Shader non fotorealistici & Scena panoramica / scena interattiva & Differenze stilistiche rispetto ai modelli realistici \\
+        \hline
+    \end{tabular}
+    \caption[Corrispondenza tra confronti visivi e scene di test]{Corrispondenza tra ogni confronto della \cref{sec:confronto-visivo} e la scena di test (\cref{sec:scene-test}) da cui deriva.}
+    \label{tab:raccordo}
+\end{table}
+
 \subsection{Phong e Blinn-Phong}
 \label{subsec:conf-phong-blinn}
 
@@ -1968,7 +1990,7 @@ In condizioni di illuminazione normali, su una superficie curva, i modelli di Ph
     \label{fig:conf-phong-blinn}
 \end{figure}
 
-La differenza diventa invece netta in presenza di luce radente e shininess bassa, condizione riprodotta nella scena del riflesso speculare troncato. Nel modello di Phong il riflesso si interrompe bruscamente con un bordo netto, dove l'angolo tra il vettore di riflessione $\mathbf{R}$ e la direzione di vista $\mathbf{V}$ supera i 90° e il prodotto scalare viene azzerato. In Blinn-Phong, dove la speculare dipende dall'angolo tra $\mathbf{N}$ e l'halfway vector $\mathbf{H}$, questa condizione non si verifica e il riflesso sfuma in modo continuo (\cref{fig:conf-cutoff,fig:conf-cutoff-piano}).
+La differenza diventa invece netta in presenza di luce radente e shininess bassa, condizione riprodotta nella scena del riflesso speculare troncato (\cref{subsec:scena-cutoff}). Nel modello di Phong il riflesso si interrompe bruscamente con un bordo netto, dove l'angolo tra il vettore di riflessione $\mathbf{R}$ e la direzione di vista $\mathbf{V}$ supera i 90° e il prodotto scalare viene azzerato. In Blinn-Phong, dove la speculare dipende dall'angolo tra $\mathbf{N}$ e l'halfway vector $\mathbf{H}$, questa condizione non si verifica e il riflesso sfuma in modo continuo (\cref{fig:conf-cutoff,fig:conf-cutoff-piano}).
 
 \begin{figure}[H]
     \centering
@@ -2013,7 +2035,7 @@ La differenza diventa invece netta in presenza di luce radente e shininess bassa
 \subsection{Blinn-Phong e Cook-Torrance}
 \label{subsec:conf-blinn-pbr}
 
-Il confronto tra Blinn-Phong e Cook-Torrance evidenzia il passaggio da un modello empirico a uno fisicamente fondato. La differenza più immediata si osserva sui materiali metallici. In Blinn-Phong il riflesso speculare assume sempre il colore della luce, indipendentemente dal materiale: una sfera dorata presenta quindi un riflesso bianco, percettivamente innaturale. In Cook-Torrance, invece, per i materiali metallici la riflettanza base $F_0$ coincide con l'albedo (\cref{subsec:fresnel}), e il riflesso assume il colore caratteristico del metallo (\cref{fig:conf-oro}).
+Il confronto tra Blinn-Phong e Cook-Torrance, svolto nella scena dedicata (\cref{subsec:scena-blinn-pbr}), evidenzia il passaggio da un modello empirico a una BRDF fisicamente fondata. La differenza più immediata si osserva sui materiali metallici. In Blinn-Phong il riflesso speculare assume sempre il colore della luce, indipendentemente dal materiale: una sfera dorata presenta quindi un riflesso bianco, percettivamente innaturale. In Cook-Torrance, invece, per i materiali metallici la riflettanza base $F_0$ coincide con l'albedo (\cref{subsec:fresnel}), e il riflesso assume il colore caratteristico del metallo (\cref{fig:conf-oro}).
 
 \begin{figure}[H]
     \centering
@@ -2063,7 +2085,7 @@ Una seconda differenza emerge con materiali rugosi. Il termine $G$ di Cook-Torra
 
 \begin{minipage}{\textwidth}
 
-Una terza differenza riguarda l'effetto Fresnel, presente in Cook-Torrance tramite il termine $F$ (\cref{subsec:fresnel}) e assente in Blinn-Phong. Poiché negli shader sviluppati non è implementato l'Image-Based Lighting, il Fresnel non si manifesta come riflesso dell'ambiente, ma come aumento della riflettanza speculare agli angoli radenti. Lo si può osservare spostando il punto di vista in modo che il riflesso speculare passi dal centro della sfera verso il bordo: in Cook-Torrance il riflesso diventa più intenso man mano che si avvicina al contorno, mentre in Blinn-Phong la sua intensità resta invariata (\cref{fig:conf-fresnel}).
+Una terza differenza riguarda l'effetto Fresnel, presente in Cook-Torrance tramite il termine $F$ (\cref{subsec:fresnel}) e assente in Blinn-Phong. Poiché negli shader sviluppati non è implementato l'Image-Based Lighting, il Fresnel non si manifesta come riflesso dell'ambiente, ma come aumento della riflettanza speculare agli angoli radenti. Lo si può osservare spostando il punto di vista in modo che il riflesso speculare si avvicini al bordo della sfera: in Cook-Torrance diventa più intenso, mentre in Blinn-Phong resta invariato (\cref{fig:conf-fresnel}).
 
 \begin{figure}[H]
     \centering
@@ -2096,7 +2118,7 @@ Una terza differenza riguarda l'effetto Fresnel, presente in Cook-Torrance trami
         \caption{Cook-Torrance, riflesso al bordo}
         \label{fig:conf-fresnel-pbr-bordo}
     \end{subfigure}
-    \caption[Effetto Fresnel su luce diretta]{Effetto Fresnel con luce diretta. In Blinn-Phong il riflesso ha la stessa intensità al centro (a) e al bordo (b). In Cook-Torrance il riflesso al bordo (d) è più intenso che al centro (c).}
+    \caption[Effetto Fresnel su luce diretta]{Effetto Fresnel con luce diretta. In Blinn-Phong il riflesso ha la stessa intensità al centro e al bordo. In Cook-Torrance il riflesso al bordo è più intenso che al centro.}
     \label{fig:conf-fresnel}
 \end{figure}
 
@@ -2109,7 +2131,7 @@ Al di là delle singole differenze, il vantaggio principale di Cook-Torrance è 
 \subsection{Variazione di metallic e roughness}
 \label{subsec:conf-griglia}
 
-La griglia di sfere generata nella scena dedicata (\cref{fig:conf-griglia}) mostra l'effetto combinato dei due parametri del workflow metallic/roughness. Lungo l'asse del metallic, all'aumentare del valore la componente diffusa scompare progressivamente e il riflesso speculare assume il colore del materiale: la sfera passa da un aspetto plastico a uno metallico. Lungo l'asse della roughness, all'aumentare del valore il riflesso si allarga e perde intensità, passando da una superficie a specchio a una opaca.
+La griglia di sfere generata nella scena dedicata (\cref{subsec:scena-griglia}) mostra l'effetto combinato dei due parametri del workflow metallic/roughness. Lungo l'asse del metallic, all'aumentare del valore la componente diffusa scompare progressivamente e il riflesso speculare assume il colore del materiale: la sfera passa da un aspetto plastico a uno metallico. Lungo l'asse della roughness, all'aumentare del valore il riflesso si allarga e perde intensità, passando da una superficie a specchio a una opaca.
 
 \begin{figure}[H]
     \centering
@@ -2129,14 +2151,14 @@ L'uso delle texture non modifica il modello di illuminazione, ma permette di var
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[b]{0.43\textwidth}
+    \begin{subfigure}[b]{0.44\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/confronto/senza-texture.png}
         \caption{Valori costanti}
         \label{fig:conf-no-tex}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.43\textwidth}
+    \begin{subfigure}[b]{0.44\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/pbr/confronto/con-texture.png}
         \caption{Con texture maps}
@@ -2146,21 +2168,21 @@ L'uso delle texture non modifica il modello di illuminazione, ma permette di var
     \label{fig:conf-texture}
 \end{figure}
 
+\end{minipage}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{img/project/screenshot/texture.jpg}
+    \includegraphics[width=1.0\textwidth]{img/project/screenshot/texture.jpg}
     \caption[Materiali con texture]{Diverse sfere con shader Cook-Torrance e set di texture differenti. Le texture permettono di rappresentare materiali complessi con variazioni locali dei parametri.}
     \label{fig:conf-materiali-texture}
 \end{figure}
-
-\end{minipage}
 
 \begin{minipage}{\textwidth}
 
 \subsection{Shader non fotorealistici}
 \label{subsec:conf-custom}
 
-Toon e hologram non hanno l'obiettivo di simulare la realtà, ma di mostrare la flessibilità della pipeline programmabile. Il toon shading, pur basandosi sull'illuminazione di Blinn-Phong, ne quantizza il risultato in fasce, producendo un aspetto cartoon lontano dal fotorealismo dei modelli precedenti. L'effetto ologramma combina invece rim lighting, trasparenza e animazioni per ottenere un risultato puramente stilistico, non riconducibile ad alcun modello fisico. Entrambi mostrano come la pipeline non sia vincolata esclusivamente alla resa realistica: lo stesso meccanismo usato per Phong, Blinn-Phong e Cook-Torrance può produrre qualsiasi effetto visivo definito dallo sviluppatore (\cref{fig:conf-custom}).
+Toon e hologram sono visibili nella scena panoramica (\cref{subsec:scena-panoramica}) e nella scena interattiva (\cref{subsec:scena-interattiva}), che ne mostrano la resa accanto ai modelli realistici. Entrambi non hanno l'obiettivo di simulare la realtà, ma di mostrare la flessibilità della pipeline programmabile. Il toon shading, pur basandosi sull'illuminazione di Blinn-Phong, ne quantizza il risultato in fasce, producendo un aspetto cartoon lontano dal fotorealismo dei modelli precedenti. L'effetto ologramma combina invece rim lighting, trasparenza e animazioni per ottenere un risultato puramente stilistico, non riconducibile ad alcun modello fisico. Entrambi mostrano come la pipeline non sia vincolata esclusivamente alla resa realistica: lo stesso meccanismo usato per Phong, Blinn-Phong e Cook-Torrance può produrre qualsiasi effetto visivo definito dallo sviluppatore (\cref{fig:conf-custom}).
 
 \begin{figure}[H]
     \centering
@@ -2223,7 +2245,7 @@ La \cref{tab:costo} riassume il costo relativo di ciascuno shader e la sua motiv
     \label{tab:costo}
 \end{table}
 
-In sintesi, i modelli classici sono i più economici, il PBR ha un costo intermedio dovuto al calcolo della BRDF, e la variante con texture aggiunge il costo dei campionamenti. Gli shader non fotorealistici introducono un costo aggiuntivo non per la complessità del modello di illuminazione, ma per le tecniche che impiegano: il secondo pass nel toon e la trasparenza nell'hologram. In tutti i casi, la scelta del modello in un'applicazione dipende più dalla qualità visiva desiderata che dal costo computazionale, che diventa rilevante solo in scene molto complesse o con un elevato numero di sorgenti luminose.
+In sintesi, i modelli classici sono i più economici, il PBR ha un costo intermedio dovuto al calcolo della BRDF, e la variante con texture aggiunge il costo dei campionamenti. Gli shader non fotorealistici introducono un costo aggiuntivo non per la complessità del modello di illuminazione, ma per le tecniche che impiegano: il secondo pass nel toon e la trasparenza nell'hologram. In tutti i casi, la scelta del modello in un'applicazione dipende più dalla qualità visiva desiderata che dal costo computazionale, rilevante solo in scene molto complesse o con un elevato numero di sorgenti luminose.
 
 \section{Limiti dell'implementazione}
 \label{sec:limiti-impl}
@@ -2236,7 +2258,7 @@ Il contributo della luce indiretta, nel PBR normalmente gestito tramite Image-Ba
 
 Gli shader non gestiscono inoltre le ombre proiettate, che richiederebbero un pass aggiuntivo, né la trasparenza, ad esclusione dell'effetto ologramma, configurato in modo specifico.
 
-Infine, la versione della BRDF di Cook-Torrance implementata è quella per luce diretta: il fattore $k$ del termine geometrico utilizza la rimappatura della rugosità valida per le sorgenti dirette (\cref{subsec:geometry}), e non quella prevista per il contributo dell'Image-Based Lighting, coerentemente con il fatto che quest'ultimo non è stato implementato.
+Infine, la versione della BRDF di Cook-Torrance implementata è quella per luce diretta: il fattore $k$ del termine geometrico utilizza la rimappatura della rugosità valida per le sorgenti dirette (\cref{subsec:geometry}), e non quella prevista per il contributo dell'Image-Based Lighting.
 
 
 % ============================================================
@@ -2248,7 +2270,7 @@ Questo elaborato ha presentato i principali modelli di illuminazione utilizzati 
 
 \section{Riepilogo dei risultati}
 
-Sono stati implementati e confrontati i tre principali modelli di illuminazione (Phong, Blinn-Phong e Cook-Torrance), le tre tecniche di shading (flat, Gouraud e Phong shading) e due shader non fotorealistici (toon e ologramma), ciascuno realizzato come shader custom per la Universal Render Pipeline di Unity. Gli shader sono stati integrati in un progetto interattivo che, insieme a un insieme di scene di test dedicate, ha permesso di confrontarli direttamente nelle stesse condizioni di illuminazione.
+Sono stati implementati e confrontati i tre principali modelli di illuminazione (Phong, Blinn-Phong e Cook-Torrance), le tre tecniche di shading (flat, Gouraud e Phong shading) e due shader non fotorealistici (toon e ologramma), ciascuno realizzato come shader personalizzato per la Universal Render Pipeline di Unity. Gli shader sono stati integrati in un progetto interattivo che, insieme a un insieme di scene di test dedicate, ha permesso di confrontarli direttamente nelle stesse condizioni di illuminazione.
 
 Il confronto ha evidenziato come il passaggio dai modelli classici al PBR rappresenti un cambio di approccio più che una semplice evoluzione: i modelli classici approssimano l'aspetto della luce con formule empiriche, i cui parametri vengono regolati manualmente, mentre il PBR si fonda su principi fisici che garantiscono per costruzione la coerenza visiva dei materiali. Le differenze più significative emerse dai confronti sono l'effetto Fresnel, la conservazione dell'energia e la distinzione tra metalli e dielettrici, tutte assenti nei modelli classici.
 
