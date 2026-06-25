@@ -188,7 +188,7 @@ La tesi è così strutturata:
     \item il \cref{chap:custom} presenta, dal punto di vista concettuale, alcuni shader personalizzati che esulano dal fotorealismo, mostrando le possibilità espressive della pipeline
     programmabile;
     \item il \cref{chap:progetto} raccoglie l'implementazione HLSL di tutti gli shader, la loro integrazione nel progetto Unity, le scene di test e il confronto visivo e prestazionale tra i modelli;
-    \item il \cref{chap:conclusioni} presenta le considerazioni conclusive, sintetizzando i risultati ottenuti, i limiti dell’implementazione e le possibili direzioni di sviluppo futuro.
+    \item il \cref{chap:conclusioni} presenta le considerazioni conclusive, sintetizzando i risultati ottenuti, i limiti dell'implementazione e le possibili direzioni di sviluppo futuro.
 \end{itemize}
 
 
@@ -363,7 +363,7 @@ Questa struttura è la base su cui verranno costruiti tutti gli shader nei capit
 
 Questo capitolo presenta i modelli di illuminazione storicamente più rilevanti nella grafica in tempo reale: il modello di Phong e la sua variante proposta da Blinn. Si tratta di modelli empirici: pur non essendo fondati su una descrizione fisicamente accurata dell'interazione tra luce e materia, approssimano in modo efficace il comportamento visivo della luce, mantenendo un costo computazionale contenuto.
 
-Entrambi sono modelli di illuminazione locale: calcolano il colore di un punto considerando solo la luce che arriva direttamente dalle sorgenti, senza tener conto dei rimbalzi successivi tra le superfici. Al contrario, i modelli di illuminazione globale simulano anche la luce indiretta producendo risultati molto più realistici, ma a un costo computazionale spesso incompatibile con il rendering in tempo reale e non verranno trattati in questa tesi. Nel \cref{chap:pbr} verrà discusso come, nell’ambito del rendering fisicamente basato, la luce indiretta possa essere approssimata mediante tecniche come l’\textit{Image-Based Lighting}.
+Entrambi sono modelli di illuminazione locale: calcolano il colore di un punto considerando solo la luce che arriva direttamente dalle sorgenti, senza tener conto dei rimbalzi successivi tra le superfici. Al contrario, i modelli di illuminazione globale simulano anche la luce indiretta producendo risultati molto più realistici, ma a un costo computazionale spesso incompatibile con il rendering in tempo reale e non verranno trattati in questa tesi. Nel \cref{chap:pbr} verrà discusso come, nell'ambito del rendering fisicamente basato, la luce indiretta possa essere approssimata mediante tecniche come l'\textit{Image-Based Lighting}.
 
 Dopo aver introdotto i concetti di base sull'interazione tra luce e superficie, vengono formalizzati i due modelli e analizzate le differenze tra le principali tecniche di shading: flat, Gouraud e Phong shading. Le relative implementazioni HLSL sono presentate nel \cref{chap:progetto}, dedicato alla parte pratica del lavoro.
 
@@ -636,7 +636,7 @@ Le implementazioni HLSL dei modelli di Phong e Blinn-Phong e delle tre tecniche 
 
 I modelli di Phong e Blinn-Phong, presentati nel capitolo precedente, sono modelli empirici: producono risultati visivamente plausibili, ma non si basano su principi fisici e i loro parametri vengono regolati manualmente, senza vincoli che ne garantiscano la correttezza. Il risultato è che, al variare delle condizioni di illuminazione, gli stessi materiali possono apparire convincenti in una scena e innaturali in un'altra.
 
-Il \textit{Physically Based Rendering} (PBR) nasce per superare queste limitazioni: anziché approssimare l'aspetto visivo con formule empiriche, adotta un approccio fisicamente plausibile all'interazione tra luce e materia, basato su principi come la conservazione dell'energia e la teoria delle microfacce. I materiali vengono descritti tramite grandezze fisicamente interpretabili (rugosità e metallicità), e il modello rispetta questo vincolo per costruzione.
+Il \textit{Physically Based Rendering} (PBR) nasce per superare queste limitazioni: anziché approssimare l'aspetto visivo con formule empiriche, adotta un approccio fisicamente plausibile all'interazione tra luce e materia, basato su principi come la conservazione dell'energia e la teoria delle microfacce. I materiali vengono descritti tramite grandezze fisicamente interpretabili (rugosità e metallicità), e l'approccio adottato è costruito in modo da rispettare vincoli fisici, tra cui il principio di conservazione dell'energia.
 
 Questo capitolo presenta i principi fisici alla base del PBR, la \textit{Bidirectional Reflectance Distribution Function} (BRDF) di Cook-Torrance e i suoi termini costitutivi, il \textit{workflow metallic/roughness} adottato nei motori moderni e un'introduzione all'\textit{Image-Based Lighting}. L'implementazione HLSL del modello è presentata nel \cref{chap:progetto}, dedicato alla parte pratica del lavoro.
 
@@ -1324,7 +1324,7 @@ Tutti gli shader presentati nel resto del capitolo utilizzano il Phong shading, 
 \subsection{Struttura comune degli shader}
 \label{subsec:struttura-comune}
 
-Gli shader che implementano i modelli di illuminazione (Phong, Blinn-Phong e Cook-Torrance) condividono la stessa struttura di base: un vertex shader che trasforma posizione e normale dallo spazio oggetto allo spazio mondo, e un fragment shader che applica il modello di illuminazione per ogni frammento. Le differenze tra uno shader e l’altro riguardano principalmente le proprietà esposte nel blocco \texttt{Properties} e il contenuto del fragment shader; il vertex shader e le strutture \texttt{Attributes} e \texttt{Varyings} restano invariati. Le proprietà del materiale vengono esposte nelle \texttt{Properties}, così da poter essere regolate dal pannello descritto nella \cref{subsec:pannello}.
+Gli shader che implementano i modelli di illuminazione (Phong, Blinn-Phong e Cook-Torrance) condividono la stessa struttura di base: un vertex shader che trasforma posizione e normale dallo spazio oggetto allo spazio mondo, e un fragment shader che applica il modello di illuminazione per ogni frammento. Le differenze tra uno shader e l'altro riguardano principalmente le proprietà esposte nel blocco \texttt{Properties} e il contenuto del fragment shader; il vertex shader e le strutture \texttt{Attributes} e \texttt{Varyings} restano invariati. Le proprietà del materiale vengono esposte nelle \texttt{Properties}, così da poter essere regolate dal pannello descritto nella \cref{subsec:pannello}.
 
 Fa eccezione la variante del modello di Cook-Torrance con normal map (\cref{subsec:impl-pbr-texture}): per campionare le texture e perturbare la normale, richiede anche le coordinate UV e la tangente tra gli \texttt{Attributes}, e di conseguenza la tangente e la bitangente (necessarie per costruire la matrice TBN) tra i \texttt{Varyings}.
 
@@ -1888,7 +1888,7 @@ Gli oggetti selezionabili sono impostati in modo che ciascuno parta con un mater
 \subsection{Scena panoramica degli shader}
 \label{subsec:scena-panoramica}
 
-Questa scena dispone una serie di sfere identiche, ciascuna associata a uno degli shader implementati: Phong, Blinn-Phong, Cook-Torrance, toon e hologram. Le sfere sono illuminate dalla stessa luce e osservate dallo stesso punto di vista, così da evidenziare a colpo d’occhio le differenze visive complessive tra i modelli, prima dei confronti mirati presentati nelle scene successive.
+Questa scena dispone una serie di sfere identiche, ciascuna associata a uno degli shader implementati: Phong, Blinn-Phong, Cook-Torrance, toon e hologram. Le sfere sono illuminate dalla stessa luce e osservate dallo stesso punto di vista, così da evidenziare a colpo d'occhio le differenze visive complessive tra i modelli, prima dei confronti mirati presentati nelle scene successive.
 
 \begin{figure}[H]
     \centering
@@ -1947,7 +1947,7 @@ Il risultato e il commento sono riportati nella \cref{sec:confronto-visivo}.
 \subsection{Scena dei materiali con texture}
 \label{subsec:scena-texture}
 
-Questa scena raccoglie alcune sfere con shader Cook-Torrance configurate con set di texture diversi (albedo, metallic, roughness e normal map), corrispondenti a materiali come legno, metallo e pietra. A differenza delle scene precedenti, in cui i parametri del materiale sono definiti come valori costanti e variano solo da una sfera all’altra, in questo caso ogni texture consente di modificare localmente le proprietà del materiale sulla superficie dell’oggetto. La scena permette quindi di evidenziare il ruolo delle texture map nella resa di materiali più complessi e visivamente dettagliati. Il risultato è discusso nella \cref{subsec:conf-texture}.
+Questa scena raccoglie alcune sfere con shader Cook-Torrance configurate con set di texture diversi (albedo, metallic, roughness e normal map), corrispondenti a materiali come legno, metallo e pietra. A differenza delle scene precedenti, in cui i parametri del materiale sono definiti come valori costanti e variano solo da una sfera all'altra, in questo caso ogni texture consente di modificare localmente le proprietà del materiale sulla superficie dell'oggetto. La scena permette quindi di evidenziare il ruolo delle texture map nella resa di materiali più complessi e visivamente dettagliati. Il risultato è discusso nella \cref{subsec:conf-texture}.
 
 \section{Confronto visivo}
 \label{sec:confronto-visivo}
@@ -1979,7 +1979,7 @@ In questa sezione vengono messi a confronto i risultati prodotti dai diversi mod
 \subsection{Phong e Blinn-Phong}
 \label{subsec:conf-phong-blinn}
 
-In condizioni di illuminazione normali, su una superficie curva, i modelli di Phong e Blinn-Phong producono risultati molto simili, a patto di equiparare i parametri (in particolare usando per Blinn-Phong un esponente di shininess maggiore, come discusso nella \cref{subsec:half-vector}). La differenza nella forma del riflesso speculare è in questo caso sottile e difficilmente percepibile (\cref{fig:conf-phong-blinn}).
+Questo confronto è stato ottenuto nella scena descritta nella \cref{subsec:scena-cutoff}, progettata per evidenziare il comportamento della componente speculare nei modelli di Phong e Blinn-Phong. In condizioni di illuminazione normali, su una superficie curva, i modelli di Phong e Blinn-Phong producono risultati molto simili, a patto di equiparare i parametri (in particolare usando per Blinn-Phong un esponente di shininess maggiore, come discusso nella \cref{subsec:half-vector}). La differenza nella forma del riflesso speculare è in questo caso sottile e difficilmente percepibile (\cref{fig:conf-phong-blinn}).
 
 \begin{figure}[H]
     \centering
@@ -2001,7 +2001,8 @@ In condizioni di illuminazione normali, su una superficie curva, i modelli di Ph
     \label{fig:conf-phong-blinn}
 \end{figure}
 
-La differenza diventa invece netta in presenza di luce radente e shininess bassa, condizione riprodotta nella scena del riflesso speculare troncato, descritta nella \cref{subsec:scena-cutoff}. Nel modello di Phong il riflesso si interrompe bruscamente con un bordo netto, dove l'angolo tra il vettore di riflessione $\mathbf{R}$ e la direzione di vista $\mathbf{V}$ supera i 90° e il prodotto scalare viene azzerato. In Blinn-Phong, dove la speculare dipende dall'angolo tra $\mathbf{N}$ e l'halfway vector $\mathbf{H}$, questa condizione non si verifica e il riflesso sfuma in modo continuo, come mostrato nelle \cref{fig:conf-cutoff,fig:conf-cutoff-piano}.
+La differenza diventa invece netta in presenza di luce radente e shininess bassa. Nel modello di Phong il riflesso si interrompe bruscamente con un bordo netto, dove l'angolo tra il vettore di riflessione $\mathbf{R}$ e la direzione di vista $\mathbf{V}$ supera i 90° e il prodotto scalare viene azzerato. In Blinn-Phong, dove la speculare dipende dall'angolo tra $\mathbf{N}$ e l'halfway vector $\mathbf{H}$, questa condizione non si verifica e il riflesso sfuma in modo continuo, come mostrato nelle \cref{fig:conf-cutoff,fig:conf-cutoff-piano}.
+
 
 \begin{figure}[H]
     \centering
@@ -2048,7 +2049,7 @@ La differenza diventa invece netta in presenza di luce radente e shininess bassa
 \subsection{Blinn-Phong e Cook-Torrance}
 \label{subsec:conf-blinn-pbr}
 
-Questo confronto è stato ottenuto nella scena descritta nella \cref{subsec:scena-blinn-pbr}, progettata per osservare il comportamento dei due modelli su materiali metallici e rugosi. Il confronto tra Blinn-Phong e Cook-Torrance mette in evidenza il passaggio da un modello empirico a una BRDF fisicamente plausibile. La differenza più immediata emerge nel caso dei materiali metallici. Nel modello Blinn-Phong, la componente speculare assume sempre il colore della sorgente luminosa, indipendentemente dalle proprietà del materiale. Di conseguenza, una sfera dorata presenta un riflesso bianco, percettivamente poco realistico. Nel modello Cook-Torrance, invece, per i materiali metallici la riflettanza base $F_0$ coincide con l’albedo, come discusso nella \cref{subsec:fresnel}; il riflesso speculare assume quindi il colore caratteristico del metallo, producendo una resa visiva più coerente, come mostrato in \cref{fig:conf-oro}.
+Questo confronto è stato ottenuto nella scena descritta nella \cref{subsec:scena-blinn-pbr}, progettata per osservare il comportamento dei due modelli su materiali metallici e rugosi. Il confronto tra Blinn-Phong e Cook-Torrance mette in evidenza il passaggio da un modello empirico a una BRDF fisicamente plausibile. La differenza più immediata emerge nel caso dei materiali metallici. Nel modello Blinn-Phong, la componente speculare assume sempre il colore della sorgente luminosa, indipendentemente dalle proprietà del materiale. Di conseguenza, una sfera dorata presenta un riflesso bianco, percettivamente poco realistico. Nel modello Cook-Torrance, invece, per i materiali metallici la riflettanza base $F_0$ coincide con l'albedo, come discusso nella \cref{subsec:fresnel}; il riflesso speculare assume quindi il colore caratteristico del metallo, producendo una resa visiva più coerente, come mostrato in \cref{fig:conf-oro}.
 
 \begin{figure}[H]
     \centering
@@ -2167,7 +2168,7 @@ La griglia di sfere generata nella scena descritta nella \cref{subsec:scena-grig
 \subsection{Effetto delle texture}
 \label{subsec:conf-texture}
 
-Questo confronto è stato ottenuto nella scena descritta nella \cref{subsec:scena-texture}, dedicata ai materiali con texture. L'uso delle texture non modifica il modello di illuminazione, ma consente di variare localmente i parametri del materiale sulla superficie dell’oggetto. Rispetto a un materiale con valori costanti, la versione con texture mostra dettagli e variazioni locali (zone più o meno metalliche, rugosità non uniforme, rilievi simulati dalla normal map). Queste informazioni, campionate punto per punto nel fragment shader, producono una resa visiva più ricca e articolata, impossibile da ottenere con un unico valore costante assegnato all’intero materiale, come mostrato in \cref{fig:conf-texture}.
+Questo confronto è stato ottenuto nella scena descritta nella \cref{subsec:scena-texture}, dedicata ai materiali con texture. L'uso delle texture non modifica il modello di illuminazione, ma consente di variare localmente i parametri del materiale sulla superficie dell'oggetto. Rispetto a un materiale con valori costanti, la versione con texture mostra dettagli e variazioni locali (zone più o meno metalliche, rugosità non uniforme, rilievi simulati dalla normal map). Queste informazioni, campionate punto per punto nel fragment shader, producono una resa visiva più ricca e articolata, impossibile da ottenere con un unico valore costante assegnato all'intero materiale, come mostrato in \cref{fig:conf-texture}.
 
 \begin{figure}[H]
     \centering
@@ -2204,7 +2205,7 @@ Questo confronto è stato ottenuto nella scena descritta nella \cref{subsec:scen
 
 Questo confronto è stato ottenuto nella scena panoramica descritta nella \cref{subsec:scena-panoramica}, nella quale gli shader implementati sono applicati a oggetti identici e osservati nelle stesse condizioni di illuminazione.
 
-Gli shader toon e hologram non hanno l’obiettivo di simulare fedelmente il comportamento fisico della luce, ma di mostrare la flessibilità espressiva della pipeline programmabile. Il toon shading, pur basandosi sul modello di illuminazione di Blinn-Phong, ne quantizza il risultato in fasce, producendo un aspetto cartoon lontano dal fotorealismo dei modelli precedenti. L'effetto ologramma combina invece rim lighting, trasparenza e animazioni per ottenere un risultato puramente stilistico, non riconducibile ad alcun modello fisico. Entrambi gli esempi mostrano come la pipeline non sia vincolata esclusivamente alla resa realistica: lo stesso meccanismo usato per Phong, Blinn-Phong e Cook-Torrance può produrre qualsiasi effetto visivo definito dallo sviluppatore.
+Gli shader toon e hologram non hanno l'obiettivo di simulare fedelmente il comportamento fisico della luce, ma di mostrare la flessibilità espressiva della pipeline programmabile. Il toon shading, pur basandosi sul modello di illuminazione di Blinn-Phong, ne quantizza il risultato in fasce, producendo un aspetto cartoon lontano dal fotorealismo dei modelli precedenti. L'effetto ologramma combina invece rim lighting, trasparenza e animazioni per ottenere un risultato puramente stilistico, non riconducibile ad alcun modello fisico. Entrambi gli esempi mostrano come la pipeline non sia vincolata esclusivamente alla resa realistica: lo stesso meccanismo usato per Phong, Blinn-Phong e Cook-Torrance può produrre qualsiasi effetto visivo definito dallo sviluppatore.
 
 \begin{figure}[H]
     \centering
@@ -2320,7 +2321,7 @@ Il lavoro potrebbe essere esteso in diverse direzioni:
 %  BIBLIOGRAFIA
 % ============================================================
 \renewcommand{\bibsection}{}
-\chapter*{Riferimenti bibliografici}
+\chapter*{Bibliografia}
 \bibliography{refs}
 \newpage
 
