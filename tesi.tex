@@ -1326,7 +1326,7 @@ Tutti gli shader presentati nel resto del capitolo utilizzano il Phong shading, 
 
 Gli shader che implementano i modelli di illuminazione (Phong, Blinn-Phong e Cook-Torrance) condividono la stessa struttura di base: un vertex shader che trasforma posizione e normale dallo spazio oggetto allo spazio mondo, e un fragment shader che applica il modello di illuminazione per ogni frammento. Le differenze tra uno shader e l'altro riguardano principalmente le proprietà esposte nel blocco \texttt{Properties} e il contenuto del fragment shader; il vertex shader e le strutture \texttt{Attributes} e \texttt{Varyings} restano invariati. Le proprietà del materiale vengono esposte nelle \texttt{Properties}, così da poter essere regolate dal pannello descritto nella \cref{subsec:pannello}.
 
-Fa eccezione la variante del modello di Cook-Torrance con normal map (\cref{subsec:impl-pbr-texture}): per campionare le texture e perturbare la normale, richiede tra gli \texttt{Attributes} anche le coordinate UV e la tangente, dai quali si ricavano la tangente e la bitangente in world space (necessarie per costruire la matrice TBN) trasmesse tra i \texttt{Varyings}.
+Fa eccezione la variante del modello di Cook-Torrance con normal map, descritta nella \cref{subsec:impl-pbr-texture}: richiede tra gli \texttt{Attributes} anche le coordinate UV (per campionare le texture) e la tangente. Da tangente e normale, trasformate in world space, si ricava la bitangente: i tre vettori formano la matrice \textbf{TBN} trasmessa tra i \texttt{Varyings}.
 
 L'esempio seguente mostra la struttura comune con le proprietà dei modelli classici (Phong e Blinn-Phong); il modello di Cook-Torrance adotta la stessa struttura, cambiando solo le proprietà esposte.
 
@@ -1577,7 +1577,7 @@ La normale $\mathbf{N}$ risultante sostituisce quella interpolata dal vertex sha
 \subsection{Toon shading}
 \label{subsec:impl-toon}
 
-Lo shader toon (\cref{sec:toon}) produce una resa non fotorealistica quantizzando l'illuminazione di Blinn-Phong. È composto da due pass: il primo disegna il contorno, il secondo applica lo shading stilizzato. Espone il numero di fasce, la soglia speculare e i parametri del contorno.
+Lo shader toon, descritto nella \cref{sec:toon}, produce una resa non fotorealistica quantizzando l'illuminazione di Blinn-Phong. È composto da due pass: il primo disegna il contorno, il secondo applica lo shading stilizzato. Espone il numero di fasce, la soglia speculare e i parametri del contorno.
 
 Il primo pass estrude i vertici lungo la normale e, con \texttt{Cull Front}, disegna solo le facce posteriori colorate, creando il bordo.
 
@@ -1629,7 +1629,7 @@ float4 frag(Varyings IN) : SV_Target {
 \subsection{Hologram shader}
 \label{subsec:impl-hologram}
 
-Lo shader hologram (\cref{sec:hologram}) combina rim lighting, pattern a strisce e flicker, e introduce la trasparenza. La configurazione del pass abilita l'alpha blending, imposta la coda di rendering a \texttt{Transparent} e disabilita la scrittura nel depth buffer:
+Lo shader hologram, descritto nella \cref{sec:hologram}, combina \textit{rim lighting}, pattern a strisce e \textit{flicker}, introducendo inoltre la trasparenza. La configurazione del \textit{pass} abilita l'\textit{alpha blending}, imposta la coda di rendering a \texttt{Transparent} e disabilita la scrittura nel depth buffer:
 
 \begin{lstlisting}[style=hlsl,
     caption={Configurazione del pass per la trasparenza.},
@@ -1646,7 +1646,7 @@ ZWrite Off
 Il fragment shader combina i tre effetti e calcola l'opacità finale.
 
 \begin{lstlisting}[style=hlsl,
-    caption={Fragment shader dell'effetto ologramma.},
+    caption={Fragment shader dell'hologram shader.},
     label={lst:holo-frag}]
 float4 frag(Varyings IN) : SV_Target {
     float3 N = normalize(IN.normalWS);
