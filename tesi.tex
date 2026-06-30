@@ -2289,7 +2289,7 @@ Infine, la versione della BRDF di Cook-Torrance implementata è quella per luce 
 % ============================================================
 \chapter{Conclusioni} \label{chap:conclusioni}
 
-Questo elaborato ha presentato i principali modelli di illuminazione utilizzati nella grafica in tempo reale, dai modelli empirici classici fino al Physically Based Rendering, accompagnando la trattazione teorica con l'implementazione concreta di tutti i modelli in HLSL all'interno del motore Unity. La parte teorica e quella pratica sono state tenute distinte: i \cref{chap:classici,chap:pbr,chap:custom} hanno presentato i fondamenti dei modelli, mentre il \cref{chap:progetto} ne ha raccolto l'implementazione, l'integrazione in Unity e il confronto.
+Questo elaborato ha presentato i principali modelli di illuminazione utilizzati nella grafica in tempo reale, dai modelli empirici classici fino al Physically Based Rendering, accompagnando la trattazione teorica con l'implementazione di tutti i modelli in HLSL all'interno del motore Unity. I \cref{chap:classici,chap:pbr,chap:custom} hanno presentato i fondamenti teorici dei modelli, mentre il \cref{chap:progetto} ne ha raccolto l'implementazione, l'integrazione in Unity e il confronto.
 
 \section{Riepilogo dei risultati}
 
@@ -2303,7 +2303,7 @@ Gli shader non fotorealistici hanno infine mostrato come la pipeline programmabi
 
 Il lavoro si è concentrato sul confronto dei modelli di illuminazione in condizioni controllate e semplici, accettando alcune semplificazioni discusse nella \cref{sec:limiti-impl}. La principale è la gestione della luce indiretta, approssimata con un termine ambientale costante anziché tramite Image-Based Lighting: questa scelta, pur sufficiente a dimostrare il funzionamento dei modelli, ne limita la resa, in particolare per i materiali metallici. L'implementazione si è inoltre limitata a una singola sorgente direzionale, senza ombre proiettate né sorgenti multiple.
 
-Queste semplificazioni, coerenti con l'obiettivo didattico e comparativo del lavoro, lasciano spazio a diversi sviluppi.
+Queste scelte, coerenti con l'obiettivo didattico e comparativo del lavoro, lasciano spazio a diversi sviluppi.
 
 \section{Possibili sviluppi}
 
