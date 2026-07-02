@@ -290,7 +290,7 @@ Nel progetto sviluppato in questa tesi è stata adottata URP: poiché l'obiettiv
 
 Gli shader in Unity vengono scritti in file con estensione \texttt{.shader} che utilizzano ShaderLab, un linguaggio proprietario che descrive la struttura generale dello shader e le sue proprietà. All'interno di questa struttura viene inserito il codice HLSL, responsabile dell'implementazione della logica del vertex shader e del fragment shader.
 
-Uno shader Unity è organizzato nei seguenti blocchi: \texttt{Properties}, che espone i parametri configurabili del materiale dell'inspector di Unity; \texttt{Shader}, il blocco esterno identificato da un nome; uno o più \texttt{SubShader}, ciascuno pensato per una specifica piattaforma; uno o più \texttt{Pass}, che rappresentano singole esecuzioni della pipeline, ognuna con il proprio vertex e fragment shader.
+Uno shader Unity è organizzato nei seguenti blocchi: \texttt{Properties}, che espone i parametri del materiale, configurabili nell'inspector di Unity; \texttt{Shader}, il blocco esterno identificato da un nome; uno o più \texttt{SubShader}, ciascuno pensato per una specifica piattaforma; uno o più \texttt{Pass}, che rappresentano singole esecuzioni della pipeline, ognuna con il proprio vertex e fragment shader.
 
 \begin{minipage}{\textwidth}
 
@@ -654,7 +654,7 @@ Di conseguenza, una superficie molto riflettente avrà necessariamente una compo
 \subsection{Teoria delle microfacce}
 \label{subsec:microfacce}
 
-Nel PBR, una superficie è descritta non come un piano perfettamente liscio, ma come un insieme di piccole facce orientate in direzioni diverse, dette \textit{microfacce}, ciascuna delle quali si comporta come uno specchio perfetto riflettendo la luce in un'unica direzione determinata dalla propria orientazione.
+Nel PBR, una superficie è descritta non come un piano perfettamente liscio, ma come un insieme di piccole facce orientate in direzioni diverse, dette \textit{microfacce}, ciascuna delle quali si comporta come uno specchio perfetto riflettendo la luce in un'unica direzione determinata dal proprio orientamento.
 
 L'aspetto del materiale dipende dalla distribuzione degli orientamenti delle microfacce. Una superficie liscia presenta microfacce ben allineate: la luce viene riflessa quasi tutta nella stessa direzione, con un riflesso nitido e concentrato. Una superficie rugosa, invece, ha microfacce orientate caoticamente: la luce viene dispersa in molte direzioni, con un riflesso ampio e sfumato.
 
@@ -1122,7 +1122,7 @@ Questo shader non si basa su un modello di illuminazione fisico, ma combina tre 
 \subsection{Rim lighting}
 \label{subsec:rim}
 
-Il \textit{rim lighting} illumina i bordi dell'oggetto sfruttando lo stesso principio dell'effetto Fresnel: il prodotto $\mathbf{N} \cdot \mathbf{V}$ misura quanto la superficie è rivolta verso l'osservatore. Ai bordi, dove la superficie è quasi perpendicolare alla direzione di vista, questo valore tende a zero e il contributo del rim lighting al massimo:
+Il \textit{rim lighting} illumina i bordi dell'oggetto sfruttando lo stesso principio dell'effetto Fresnel: il prodotto $\mathbf{N} \cdot \mathbf{V}$ misura quanto la superficie è rivolta verso l'osservatore. Ai bordi, dove la superficie è quasi perpendicolare alla direzione di vista, questo valore tende a zero e il contributo del rim lighting è al massimo:
 
 \begin{equation}
     I_{\text{rim}} = (1 - \mathbf{N} \cdot \mathbf{V})^p
@@ -2293,7 +2293,7 @@ Questo elaborato ha presentato i principali modelli di illuminazione utilizzati 
 
 \section{Riepilogo dei risultati}
 
-Sono stati implementati e confrontati i tre principali modelli di illuminazione (Phong, Blinn-Phong e Cook-Torrance), le tre tecniche di shading (flat, Gouraud e Phong shading) e due shader non fotorealistici (toon e ologramma), ciascuno realizzato come shader personalizzato per la Universal Render Pipeline di Unity. Gli shader sono stati integrati in un progetto interattivo che, insieme a un insieme di scene di test dedicate, ha permesso di confrontarli direttamente nelle stesse condizioni di illuminazione.
+Sono stati implementati e confrontati i tre principali modelli di illuminazione (Phong, Blinn-Phong e Cook-Torrance), le tre tecniche di shading (flat, Gouraud e Phong shading) e due shader non fotorealistici (toon e ologramma), ciascuno realizzato come shader personalizzato per la Universal Render Pipeline di Unity. Gli shader sono stati integrati in un progetto interattivo che, insieme a una serie di scene di test dedicate, ha permesso di confrontarli direttamente nelle stesse condizioni di illuminazione.
 
 Il confronto ha evidenziato come il passaggio dai modelli classici al PBR rappresenti un cambio di approccio più che una semplice evoluzione: i modelli classici approssimano l'aspetto della luce con formule empiriche, i cui parametri vengono regolati manualmente, mentre il PBR si fonda su principi fisici che garantiscono per costruzione la coerenza visiva dei materiali. Le differenze più significative emerse dai confronti sono l'effetto Fresnel, la conservazione dell'energia e la distinzione tra metalli e dielettrici, tutte assenti nei modelli classici.
 
